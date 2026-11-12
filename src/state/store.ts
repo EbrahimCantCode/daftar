@@ -1,7 +1,8 @@
 import { computed, signal } from '@preact/signals';
 import * as db from '../db/db';
 import { now } from '../lib/clock';
-import { currentMonth } from '../lib/dates';
+import { currentMonth, todayISO } from '../lib/dates';
+import { goalHeat, goalStreak, spendOnDay } from '../lib/goal';
 import { newId } from '../lib/id';
 import { resumeItem } from '../lib/recurring';
 import { buildSuggestions } from '../lib/suggest';
@@ -15,6 +16,32 @@ export const ready = signal(false);
 export const loadError = signal<string | null>(null);
 /** null until known; false when the browser declined (or does not support) persistent storage. */
 export const persisted = signal<boolean | null>(null);
+
+/** Today's date; updated at midnight and when the app returns to the foreground. */
+export const today = signal(todayISO(now()));
+
+let midnightTimer: ReturnType<typeof setTimeout> | undefined;
+function refreshToday() {
+  today.value = todayISO(now());
+  clearTimeout(midnightTimer);
+  const next = new Date();
+  next.setHours(24, 0, 1, 0);
+  midnightTimer = setTimeout(() => {
+    refreshToday();
+    void syncRecurring();
+  }, next.getTime() - Date.now());
+}
+
+export const todaySpentFils = computed(() => spendOnDay(entries.value, today.value));
+/** 0–1: how close today's spending is to the daily goal; 0 when no goal is set. */
+export const goalHeatValue = computed(() => {
+  const goal = settings.value.dailyGoalFils;
+  return goal ? goalHeat(todaySpentFils.value, goal) : 0;
+});
+export const streak = computed(() => {
+  const { dailyGoalFils: goal, dailyGoalSince: since } = settings.value;
+  return goal && since ? goalStreak(entries.value, goal, since, today.value) : null;
+});
 
 export const suggestions = computed(() => buildSuggestions(entries.value));
 export const recurringSorted = computed(() =>
@@ -49,9 +76,12 @@ export async function init(): Promise<void> {
     return;
   }
   requestPersistence();
-  // Catch a month rollover while the app stays open in the background.
+  refreshToday();
+  // Catch a day or month rollover while the app stays open in the background.
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') void syncRecurring();
+    if (document.visibilityState !== 'visible') return;
+    refreshToday();
+    void syncRecurring();
   });
 }
 
@@ -150,7 +180,12 @@ export async function removeRecurring(item: RecurringItem): Promise<void> {
 
 export async function updateSettings(patch: Partial<Settings>): Promise<void> {
   const next: Settings = { ...settings.value, ...patch };
-  if (next.monthlyIncomeFils === undefined) delete next.monthlyIncomeFils;
+  // A new goal starts its streak today; clearing the goal forgets the streak.
+  if (next.dailyGoalFils === undefined) delete next.dailyGoalSince;
+  else if (!next.dailyGoalSince) next.dailyGoalSince = today.value;
+  for (const key of Object.keys(next) as (keyof Settings)[]) {
+    if (next[key] === undefined) delete next[key];
+  }
   await db.saveSettings(getDb(), next);
   settings.value = next;
 }

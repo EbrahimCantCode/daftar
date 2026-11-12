@@ -6,7 +6,7 @@ import { cleanDescription } from './text';
 // One CSV holds everything. The `kind` column says what each row is:
 //   entry     — a ledger entry
 //   recurring — a monthly recurring item
-//   setting   — the single settings row (income, theme)
+//   setting   — the single settings row (income, theme, daily goal)
 // Columns that do not apply to a row's kind are left empty.
 
 export const CSV_COLUMNS = [
@@ -24,6 +24,8 @@ export const CSV_COLUMNS = [
   'next_month',
   'income',
   'theme',
+  'daily_goal',
+  'daily_goal_since',
 ] as const;
 type Column = (typeof CSV_COLUMNS)[number];
 type Row = Partial<Record<Column, string>>;
@@ -44,6 +46,8 @@ export function toCsv(data: DataSnapshot): string {
     kind: 'setting',
     income: data.settings.monthlyIncomeFils === undefined ? '' : filsToPlain(data.settings.monthlyIncomeFils),
     theme: data.settings.theme,
+    daily_goal: data.settings.dailyGoalFils === undefined ? '' : filsToPlain(data.settings.dailyGoalFils),
+    daily_goal_since: data.settings.dailyGoalSince ?? '',
   });
   for (const r of data.recurring) {
     rows.push({
@@ -259,6 +263,17 @@ export function parseImport(text: string, now: number = Date.now()): ImportPrevi
         else settings.monthlyIncomeFils = fils;
       }
       if (!THEMES.has(theme)) err(`Invalid theme "${theme}".`);
+      const goal = get(cells, 'daily_goal');
+      if (goal) {
+        const fils = parseFils(goal);
+        const since = get(cells, 'daily_goal_since');
+        if (fils === null) err(`Invalid daily goal "${goal}".`);
+        else if (!isValidDate(since)) err(`Invalid daily_goal_since "${since}" (expected YYYY-MM-DD).`);
+        else {
+          settings.dailyGoalFils = fils;
+          settings.dailyGoalSince = since;
+        }
+      }
       data.settings = settings;
     } else {
       err(`Unknown row kind "${get(cells, 'kind')}" (expected entry, recurring or setting).`);

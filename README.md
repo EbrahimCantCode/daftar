@@ -5,7 +5,8 @@ A personal spending ledger that looks and feels like a typewritten paper noteboo
 - **Quick add.** The pen button opens a sheet. Type an amount and what it was for (suggestions are ranked by how often you use them), then write it down.
 - **Monthly items.** Savings, gym, subscriptions and so on are written into the ledger automatically each month on their day. Missed months are filled in when you next open the app. Day 31 falls on the last day of shorter months.
 - **Month view.** A sticky-note summary shows Fixed, Spent, Saved, Total out and Left this month. Entries are grouped by day, and a breakdown shows where the money went.
-- **Settings.** Monthly income, Day/Night paper, CSV export and import (validated, with a preview), and an erase that you have to confirm by typing.
+- **Daily goal and streak.** Set a daily spending goal (say 5 BD) in Settings. The ledger shows today's spending against it, and the pen button and browser-tab icon shift from blue to red as you get close. Every day you finish at or under the goal adds to your streak. Days with no spending count. Only Spend entries count, not fixed or savings. The home-screen icon of an installed app can't change colour; iPhone and Android don't allow it.
+- **Settings.** Monthly income, daily goal, Day/Night paper, CSV export and import (validated, with a preview), and an erase that you have to confirm by typing.
 - **Works offline and installs** on Android and iPhone. The app shortcut "Add expense" opens straight into quick add.
 
 ## Run it

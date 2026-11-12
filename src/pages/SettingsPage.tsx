@@ -18,45 +18,47 @@ const THEMES: { value: Theme; label: string }[] = [
 
 const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
 
-function IncomeField() {
-  const income = settings.value.monthlyIncomeFils;
-  const [text, setText] = useState(income === undefined ? '' : filsToPlain(income));
+interface AmountSettingProps {
+  id: string;
+  label: string;
+  hint: string;
+  value: number | undefined;
+  example: string;
+  onSave: (fils: number | undefined) => Promise<void>;
+  savedMessage: (fils: number | undefined) => string;
+}
+
+/** An optional amount setting that saves on blur or Enter; empty clears it. */
+function AmountSetting({ id, label, hint, value, example, onSave, savedMessage }: AmountSettingProps) {
+  const [text, setText] = useState(value === undefined ? '' : filsToPlain(value));
   const [error, setError] = useState<string | null>(null);
 
   const commit = async () => {
     const trimmed = text.trim();
-    if (!trimmed) {
-      setError(null);
-      if (income !== undefined) {
-        await updateSettings({ monthlyIncomeFils: undefined });
-        showToast('Income cleared');
-      }
-      return;
-    }
-    const fils = parseFils(trimmed);
+    const fils = trimmed ? parseFils(trimmed) : undefined;
     if (fils === null) {
-      setError('Use a positive amount, like 850 or 850.500');
+      setError(`Use a positive amount, like ${example}`);
       return;
     }
     setError(null);
-    setText(filsToPlain(fils));
-    if (fils !== income) {
-      await updateSettings({ monthlyIncomeFils: fils });
-      showToast(`Income set to ${formatFils(fils)}`);
+    if (fils !== undefined) setText(filsToPlain(fils));
+    if (fils !== value) {
+      await onSave(fils);
+      showToast(savedMessage(fils));
     }
   };
 
   return (
     <div class="setting">
-      <label class="setting-label" for="income">
-        Monthly income
+      <label class="setting-label" for={id}>
+        {label}
       </label>
-      <p class="hint" id="income-hint">
-        {error ? <span class="ink-red">{error}</span> : 'Used for “Left this month”. Leave empty to hide it.'}
+      <p class="hint" id={`${id}-hint`}>
+        {error ? <span class="ink-red">{error}</span> : hint}
       </p>
       <div class="control income-control">
         <input
-          id="income"
+          id={id}
           class="field-input amount-input"
           type="text"
           inputMode="decimal"
@@ -64,7 +66,7 @@ function IncomeField() {
           placeholder="0.000"
           value={text}
           aria-invalid={error ? 'true' : undefined}
-          aria-describedby="income-hint"
+          aria-describedby={`${id}-hint`}
           onInput={(e) => setText(e.currentTarget.value)}
           onBlur={commit}
           onKeyDown={(e) => {
@@ -277,8 +279,27 @@ export function SettingsPage() {
     <div class="screen">
       <TopBar title="Settings" back />
 
-      {/* Remount when income changes elsewhere (import, erase) so the field shows the stored value. */}
-      <IncomeField key={String(settings.value.monthlyIncomeFils)} />
+      {/* Keyed on the stored value so an import or erase remounts the field with fresh text. */}
+      <AmountSetting
+        key={`income-${settings.value.monthlyIncomeFils}`}
+        id="income"
+        label="Monthly income"
+        hint="Used for “Left this month”. Leave empty to hide it."
+        example="850 or 850.500"
+        value={settings.value.monthlyIncomeFils}
+        onSave={(fils) => updateSettings({ monthlyIncomeFils: fils })}
+        savedMessage={(fils) => (fils === undefined ? 'Income cleared' : `Income set to ${formatFils(fils)}`)}
+      />
+      <AmountSetting
+        key={`goal-${settings.value.dailyGoalFils}`}
+        id="daily-goal"
+        label="Daily spending goal"
+        hint="Try to spend no more than this each day. Only Spend entries count, not fixed or savings. Every day at or under it adds to your streak. Leave empty to turn it off."
+        example="5 or 4.500"
+        value={settings.value.dailyGoalFils}
+        onSave={(fils) => updateSettings({ dailyGoalFils: fils })}
+        savedMessage={(fils) => (fils === undefined ? 'Daily goal turned off' : `Daily goal set to ${formatFils(fils)}`)}
+      />
 
       <div class="setting">
         <span class="setting-label" id="theme-label">

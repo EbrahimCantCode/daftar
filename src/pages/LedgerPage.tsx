@@ -6,12 +6,13 @@ import { Icon } from '../components/Icon';
 import { MonthNav } from '../components/MonthNav';
 import { QuickAddSheet, onEntrySaved, openQuickAdd } from '../components/QuickAddSheet';
 import { SummaryNote } from '../components/SummaryNote';
+import { TodayGoal } from '../components/TodayGoal';
 import { TopBar } from '../components/TopBar';
 import { now } from '../lib/clock';
-import { addMonths, currentMonth } from '../lib/dates';
+import { addMonths, currentMonth, monthOf } from '../lib/dates';
 import { breakdown, entriesInMonth, groupByDay, leftThisMonth, monthTotals } from '../lib/totals';
 import { href } from '../state/router';
-import { entries, settings } from '../state/store';
+import { entries, goalHeatValue, settings, today } from '../state/store';
 
 const viewMonth = signal(currentMonth(now()));
 const turn = signal<'next' | 'prev' | null>(null);
@@ -36,7 +37,7 @@ function handleLaunchParams() {
 
 export function LedgerPage() {
   const month = viewMonth.value;
-  const thisMonth = currentMonth(now());
+  const thisMonth = monthOf(today.value);
   const monthEntries = entriesInMonth(entries.value, month);
   const totals = monthTotals(monthEntries);
   const left = leftThisMonth(settings.value.monthlyIncomeFils, totals);
@@ -89,6 +90,7 @@ export function LedgerPage() {
             if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.8) goMonth(addMonths(month, dx < 0 ? 1 : -1));
           }}
         >
+          {month === thisMonth && <TodayGoal />}
           <SummaryNote totals={totals} left={left} />
 
           {monthEntries.length === 0 ? (
@@ -105,7 +107,14 @@ export function LedgerPage() {
         </div>
       </div>
 
-      <button type="button" class="fab" aria-label="Add expense" title="Add expense (N)" onClick={() => openQuickAdd()}>
+      <button
+        type="button"
+        class="fab"
+        style={{ '--heat': `${Math.round(goalHeatValue.value * 100)}%` }}
+        aria-label="Add expense"
+        title="Add expense (N)"
+        onClick={() => openQuickAdd()}
+      >
         <Icon name="pen" />
       </button>
       <QuickAddSheet />

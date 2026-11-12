@@ -134,11 +134,12 @@
   padding: 0;
   border: 2px solid var(--ink);
   border-radius: 58% 42% 55% 45% / 45% 55% 45% 55%;
-  background: var(--ink-blue);
+  /* --heat (0–100%) follows today's spending against the daily goal. */
+  background: color-mix(in srgb, var(--ink-red) var(--heat, 0%), var(--ink-blue));
   color: var(--paper);
   cursor: pointer;
   box-shadow: 3px 4px 0 var(--ink), var(--shadow);
-  transition: transform 0.15s ease;
+  transition: transform 0.15s ease, background-color 0.4s ease;
 }
 .fab:hover {
   transform: rotate(-6deg) scale(1.04);

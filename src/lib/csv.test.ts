@@ -3,7 +3,7 @@ import type { DataSnapshot } from '../types';
 import { parseCsvRows, parseImport, toCsv } from './csv';
 
 const snapshot: DataSnapshot = {
-  settings: { monthlyIncomeFils: 850_000, theme: 'dark' },
+  settings: { monthlyIncomeFils: 850_000, dailyGoalFils: 5_000, dailyGoalSince: '2026-11-01', theme: 'dark' },
   recurring: [
     { id: 'r1', name: 'Gym', amountFils: 25_000, dayOfMonth: 31, type: 'fixed', active: true, nextMonth: '2026-12', createdAt: Date.UTC(2026, 0, 1) },
     { id: 'r2', name: 'Savings', amountFils: 200_000, dayOfMonth: 1, type: 'savings', active: false, nextMonth: '2026-08', createdAt: Date.UTC(2026, 0, 2) },
@@ -36,6 +36,11 @@ describe('CSV export/import', () => {
   it('round-trips with no income set', () => {
     const preview = parseImport(toCsv({ ...snapshot, settings: { theme: 'system' } }));
     expect(preview.data.settings).toEqual({ theme: 'system' });
+  });
+
+  it('rejects a daily goal without a valid start date', () => {
+    const csv = 'kind,id,date,amount,description,type,daily_goal,daily_goal_since\nsetting,,,,,,5,nope\n';
+    expect(parseImport(csv).errors[0]).toMatchObject({ line: 2 });
   });
 
   it('reports bad rows by line and imports nothing from them', () => {

@@ -336,3 +336,77 @@
   position: relative;
   flex: none;
 }
+
+/* ---- Today vs. daily goal ------------------------------------------------ */
+
+.today-goal {
+  --heat-ink: color-mix(in srgb, var(--ink-red) var(--heat, 0%), var(--ink-blue));
+}
+.tg-row {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  height: var(--line);
+  padding: 0 0.25rem 0 0.5rem;
+}
+.tg-bar {
+  position: absolute;
+  left: 0.25rem;
+  top: 22%;
+  height: 50%;
+  border-radius: 3px 10px 4px 12px / 8px 4px 10px 3px;
+  background: color-mix(in srgb, var(--heat-ink) 24%, transparent);
+  transform: skewX(-8deg);
+  transition: width 0.4s ease, background-color 0.4s ease;
+}
+.tg-label {
+  position: relative;
+  flex: 1;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.tg-amount {
+  position: relative;
+  color: var(--heat-ink);
+  white-space: nowrap;
+}
+.tg-amount.ink-red {
+  color: var(--ink-red);
+}
+.tg-of {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+.tg-amount .tg-goal {
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+.tg-streak {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: var(--line);
+  padding-left: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+.tg-streak-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tg-streak svg {
+  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+}
+.tg-streak.is-lit {
+  color: var(--ink);
+}
+.tg-streak.is-lit svg {
+  color: #c96f1c;
+  fill: rgba(242, 179, 61, 0.55);
+}

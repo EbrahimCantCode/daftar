@@ -30,6 +30,10 @@ export interface RecurringItem {
 
 export interface Settings {
   monthlyIncomeFils?: number;
+  /** Daily spending goal; only "spend" entries count toward it. */
+  dailyGoalFils?: number;
+  /** YYYY-MM-DD the goal was first set; streak days before this don't count. */
+  dailyGoalSince?: string;
   theme: Theme;
 }
 

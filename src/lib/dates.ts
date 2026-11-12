@@ -79,3 +79,9 @@ export function ordinal(n: number): string {
   const s = n % 100 >= 11 && n % 100 <= 13 ? 'th' : (['th', 'st', 'nd', 'rd'][n % 10] ?? 'th');
   return `${n}${s}`;
 }
+
+export function addDays(dateISO: string, n: number): string {
+  const [y, m, d] = dateISO.split('-').map(Number) as [number, number, number];
+  const t = new Date(Date.UTC(y, m - 1, d + n));
+  return `${pad(t.getUTCFullYear(), 4)}-${pad(t.getUTCMonth() + 1)}-${pad(t.getUTCDate())}`;
+}
