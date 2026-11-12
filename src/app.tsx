@@ -1,5 +1,6 @@
 import { LedgerPage } from './pages/LedgerPage';
 import { MonthlyPage } from './pages/MonthlyPage';
+import { ReportPage } from './pages/ReportPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { Toast } from './components/Toast';
 import { route } from './state/router';
@@ -25,7 +26,15 @@ export function App() {
   return (
     <>
       <main class="notebook">
-        {route.value === 'monthly' ? <MonthlyPage /> : route.value === 'settings' ? <SettingsPage /> : <LedgerPage />}
+        {route.value === 'monthly' ? (
+          <MonthlyPage />
+        ) : route.value === 'settings' ? (
+          <SettingsPage />
+        ) : route.value === 'report' ? (
+          <ReportPage />
+        ) : (
+          <LedgerPage />
+        )}
       </main>
       <Toast />
     </>

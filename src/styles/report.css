@@ -1,0 +1,78 @@
+/* ---- Report screen ------------------------------------------------------- */
+
+.report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: calc(var(--line) * 0.5);
+}
+.report-toggle {
+  margin-top: 0.5rem;
+}
+
+/* A page torn out of the notebook: ruled, with a ragged top edge. */
+.torn-page {
+  --tear: 10px;
+  position: relative;
+  margin: 1.25rem -0.25rem calc(var(--line) * 2) -0.5rem;
+  padding: calc(var(--tear) + 1.25rem) 1rem 1.5rem 1.25rem;
+  background-color: var(--card);
+  background-image:
+    linear-gradient(to right, transparent 0.6rem, var(--margin-line) 0.6rem, var(--margin-line) calc(0.6rem + 2px), transparent calc(0.6rem + 2px)),
+    repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.5rem - 1px), var(--rule) calc(1.5rem - 1px), var(--rule) 1.5rem);
+  background-position:
+    0 0,
+    0 calc(var(--tear) + 1.25rem - 0.3rem);
+  box-shadow: var(--shadow);
+  transform: rotate(-0.6deg);
+  /* Zig-zag tear along the top edge. */
+  -webkit-mask:
+    conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / calc(var(--tear) * 2) var(--tear) repeat-x,
+    linear-gradient(#000 0 0) 0 var(--tear) / 100% calc(100% - var(--tear)) no-repeat;
+  mask:
+    conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / calc(var(--tear) * 2) var(--tear) repeat-x,
+    linear-gradient(#000 0 0) 0 var(--tear) / 100% calc(100% - var(--tear)) no-repeat;
+}
+.report-text {
+  margin: 0;
+  font-family: var(--font-text);
+  font-size: 0.8rem;
+  line-height: 1.5rem;
+  white-space: pre;
+  overflow-x: auto;
+  color: var(--ink);
+}
+.report-prose {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* ---- 1st-of-the-month banner -------------------------------------------- */
+
+.report-banner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: calc(var(--line) * 0.25) 0;
+  padding: 0.25rem 0.25rem 0.25rem 0.75rem;
+  border: 2px dashed var(--ink-soft);
+  border-radius: var(--wobble-alt);
+  background: var(--card);
+  line-height: 1.4;
+}
+.report-banner > svg {
+  flex: none;
+  width: 1.4rem;
+  height: 1.4rem;
+  color: var(--ink-blue);
+}
+.report-banner p {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.95rem;
+}
+.report-banner a {
+  font-weight: 700;
+  color: var(--ink-blue);
+}

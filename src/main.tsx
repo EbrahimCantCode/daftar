@@ -6,6 +6,7 @@ import './styles/base.css';
 import './styles/components.css';
 import './styles/ledger.css';
 import './styles/pages.css';
+import './styles/report.css';
 
 import { render } from 'preact';
 import { App } from './app';

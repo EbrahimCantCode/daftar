@@ -4,6 +4,7 @@ import { Breakdown } from '../components/Breakdown';
 import { DayList } from '../components/DayList';
 import { Icon } from '../components/Icon';
 import { MonthNav } from '../components/MonthNav';
+import { ReportBanner } from '../components/ReportBanner';
 import { QuickAddSheet, onEntrySaved, openQuickAdd } from '../components/QuickAddSheet';
 import { SummaryNote } from '../components/SummaryNote';
 import { TodayGoal } from '../components/TodayGoal';
@@ -11,7 +12,7 @@ import { TopBar } from '../components/TopBar';
 import { now } from '../lib/clock';
 import { addMonths, currentMonth, monthOf } from '../lib/dates';
 import { breakdown, entriesInMonth, groupByDay, leftThisMonth, monthTotals } from '../lib/totals';
-import { href } from '../state/router';
+import { href, reportHref } from '../state/router';
 import { entries, goalHeatValue, settings, today } from '../state/store';
 
 const viewMonth = signal(currentMonth(now()));
@@ -62,6 +63,9 @@ export function LedgerPage() {
   return (
     <div class="screen">
       <TopBar title="Daftar">
+        <a class="icon-btn" href={reportHref(month)} aria-label="Month report" title="Month report">
+          <Icon name="report" />
+        </a>
         <a class="icon-btn" href={href('monthly')} aria-label="Monthly items" title="Monthly items">
           <Icon name="repeat" />
         </a>
@@ -70,6 +74,7 @@ export function LedgerPage() {
         </a>
       </TopBar>
 
+      <ReportBanner />
       <MonthNav month={month} current={thisMonth} onGo={goMonth} />
 
       <div class="month-viewport">
