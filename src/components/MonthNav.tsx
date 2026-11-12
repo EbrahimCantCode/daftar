@@ -27,10 +27,11 @@ export function MonthNav({ month, current, onGo }: Props) {
               type="button"
               class="month-tab"
               aria-current={m === month ? 'date' : undefined}
-              aria-label={monthLabel(m)}
+              title={monthLabel(m)}
               onClick={() => m !== month && onGo(m)}
             >
               {tabLabel(m)}
+              {m.slice(0, 4) === month.slice(0, 4) && <span class="visually-hidden"> {m.slice(0, 4)}</span>}
             </button>
           ))}
         </div>
