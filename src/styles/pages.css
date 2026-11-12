@@ -1,0 +1,150 @@
+/* ---- Monthly page -------------------------------------------------------- */
+
+.page-intro {
+  color: var(--ink-soft);
+}
+
+.rec-row {
+  display: flex;
+  align-items: center;
+  height: var(--line);
+}
+.rec-row .entry {
+  flex: 1;
+  min-width: 0;
+}
+.rec-day {
+  flex: none;
+  width: 2.6rem;
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--ink-soft);
+}
+.rec-row.is-paused .entry {
+  --entry-ink: var(--ink-soft);
+}
+.rec-row.is-paused .entry-desc,
+.rec-row.is-paused .amount {
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+.paused-tag {
+  flex: none;
+  font-family: var(--font-hand);
+  font-size: 1.15rem;
+  color: var(--ink-red);
+  transform: rotate(-4deg);
+}
+
+.rec-totals {
+  margin: var(--line) 0 0;
+  padding: 0 0.25rem 0 0.5rem;
+}
+.rec-totals div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  height: var(--line);
+}
+.rec-totals dt {
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: 1.35rem;
+}
+.rec-totals dd {
+  margin: 0;
+}
+
+.chips.wrap {
+  flex-wrap: wrap;
+  overflow: visible;
+  padding-top: calc((var(--line) - 2.25rem) / 2);
+  gap: calc(var(--line) - 2.25rem) 0.5rem;
+}
+
+/* ---- Settings ------------------------------------------------------------ */
+
+.setting {
+  margin-top: var(--line);
+}
+.setting-label {
+  display: block;
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: 1.6rem;
+  line-height: var(--line);
+}
+.setting .hint {
+  line-height: 1.45;
+  margin-bottom: 0.6rem;
+  max-width: 34rem;
+}
+.income-control {
+  position: relative;
+  max-width: 16rem;
+}
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+.file-btn {
+  position: relative;
+}
+.file-btn:focus-within {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.erase-input {
+  width: 9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.danger-zone {
+  padding-top: 0;
+}
+
+.import-preview {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem 1rem;
+  border: 2px dashed var(--ink-soft);
+  border-radius: var(--wobble-alt);
+  background: var(--card);
+  line-height: 1.5;
+}
+.import-preview h4 {
+  font-size: 1.4rem;
+  line-height: 1.4;
+  word-break: break-all;
+}
+.import-facts {
+  margin: 0.25rem 0 0.75rem;
+}
+.import-facts li::before {
+  content: '✓ ';
+  color: var(--ink-green);
+}
+.error-list {
+  margin: 0.5rem 0;
+  padding-left: 1rem;
+  list-style: disc;
+  font-size: 0.95rem;
+}
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  cursor: pointer;
+}
+.check input {
+  width: 1.3rem;
+  height: 1.3rem;
+  accent-color: var(--ink-blue);
+}
+.colophon {
+  margin-top: calc(var(--line) * 2);
+}
