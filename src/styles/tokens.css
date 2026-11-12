@@ -1,0 +1,107 @@
+/* Colour and rhythm tokens. Ink colours are chosen for at least 4.5:1 contrast on their paper. */
+
+:root {
+  color-scheme: light;
+  --paper: #fbf6e9;
+  --paper-deep: #f3ead3;
+  --desk: #e7dcc2;
+  --rule: rgba(66, 120, 196, 0.26);
+  --margin-line: rgba(214, 69, 65, 0.55);
+  --hole: #e2d6b8;
+  --hole-shadow: rgba(80, 60, 20, 0.25);
+
+  --ink: #1d2740;
+  --ink-soft: #545c6c;
+  --ink-blue: #1c4ea1;
+  --ink-green: #1b6b37;
+  --ink-pencil: #5d6168;
+  --ink-red: #b3261e;
+
+  --sticky: #fff1a1;
+  --sticky-ink: #2b2a1e;
+  --sticky-shadow: rgba(90, 70, 10, 0.22);
+  --tape: rgba(214, 199, 160, 0.72);
+  --highlight-blue: rgba(28, 78, 161, 0.16);
+  --highlight-green: rgba(27, 107, 55, 0.18);
+  --highlight-pencil: rgba(93, 97, 104, 0.18);
+
+  --card: #fffdf6;
+  --overlay: rgba(40, 30, 10, 0.35);
+  --focus: #1c4ea1;
+  --shadow: 0 1px 2px rgba(60, 40, 0, 0.12), 0 12px 32px rgba(60, 40, 0, 0.14);
+
+  --line: 2.75rem; /* one ruled line (44px, so every row is a comfortable tap target); vertical sizes are multiples of it */
+  --margin-x: 3.25rem; /* where the red margin line sits */
+  --gutter: 1rem;
+  --rule-shift: -0.7rem; /* lifts the rules so text sits on them rather than floating above */
+
+  --font-hand: 'Caveat', 'Segoe Print', 'Bradley Hand', cursive;
+  --font-text: 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --wobble: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  --wobble-alt: 15px 225px 15px 255px / 255px 15px 225px 15px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --paper: #1d2027;
+    --paper-deep: #171a20;
+    --desk: #101216;
+    --rule: rgba(130, 165, 230, 0.15);
+    --margin-line: rgba(240, 110, 100, 0.42);
+    --hole: #0c0e11;
+    --hole-shadow: rgba(0, 0, 0, 0.5);
+
+    --ink: #ebe6d8;
+    --ink-soft: #aab0bb;
+    --ink-blue: #93b6ff;
+    --ink-green: #7dd598;
+    --ink-pencil: #b0b5bd;
+    --ink-red: #ff8f85;
+
+    --sticky: #4a4322;
+    --sticky-ink: #f5eecb;
+    --sticky-shadow: rgba(0, 0, 0, 0.45);
+    --tape: rgba(150, 140, 110, 0.45);
+    --highlight-blue: rgba(147, 182, 255, 0.2);
+    --highlight-green: rgba(125, 213, 152, 0.2);
+    --highlight-pencil: rgba(176, 181, 189, 0.2);
+
+    --card: #252932;
+    --overlay: rgba(0, 0, 0, 0.55);
+    --focus: #93b6ff;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.5);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --paper: #1d2027;
+  --paper-deep: #171a20;
+  --desk: #101216;
+  --rule: rgba(130, 165, 230, 0.15);
+  --margin-line: rgba(240, 110, 100, 0.42);
+  --hole: #0c0e11;
+  --hole-shadow: rgba(0, 0, 0, 0.5);
+
+  --ink: #ebe6d8;
+  --ink-soft: #aab0bb;
+  --ink-blue: #93b6ff;
+  --ink-green: #7dd598;
+  --ink-pencil: #b0b5bd;
+  --ink-red: #ff8f85;
+
+  --sticky: #4a4322;
+  --sticky-ink: #f5eecb;
+  --sticky-shadow: rgba(0, 0, 0, 0.45);
+  --tape: rgba(150, 140, 110, 0.45);
+  --highlight-blue: rgba(147, 182, 255, 0.2);
+  --highlight-green: rgba(125, 213, 152, 0.2);
+  --highlight-pencil: rgba(176, 181, 189, 0.2);
+
+  --card: #252932;
+  --overlay: rgba(0, 0, 0, 0.55);
+  --focus: #93b6ff;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.5);
+}
