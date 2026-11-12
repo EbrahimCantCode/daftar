@@ -13,7 +13,7 @@
   min-width: 0;
   font-family: var(--font-hand);
   font-weight: 700;
-  font-size: 2.1rem;
+  font-size: 1.5rem;
   line-height: var(--line);
   letter-spacing: 0.01em;
   white-space: nowrap;
@@ -182,7 +182,7 @@
 .field-input.amount-input {
   font-family: var(--font-hand);
   font-weight: 700;
-  font-size: 1.9rem;
+  font-size: 1.35rem;
   text-align: right;
   padding-right: 3.4rem;
 }
@@ -268,33 +268,20 @@ input[type='date'].field-input::-webkit-date-and-time-value {
   background: var(--highlight-blue);
 }
 
-/* ---- Amounts: handwritten digits forced into a fixed-width column. ------ */
+/* ---- Amounts: typewriter digits are fixed-width, so columns line up. ---- */
 
 .amount {
   font-family: var(--font-hand);
-  font-weight: 600;
-  font-size: 1.45rem;
+  font-weight: 700;
+  font-size: 1.0625rem;
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
   text-align: right;
 }
-.amount .d {
-  display: inline-block;
-  width: 0.5em;
-  text-align: center;
-}
-.amount .p {
-  display: inline-block;
-  width: 0.22em;
-  text-align: center;
-}
-.amount .s {
-  display: inline-block;
-  width: 0.45em;
-  text-align: center;
-}
 .amount .unit {
-  font-size: 0.7em;
-  margin-left: 0.2em;
+  font-size: 0.8em;
+  font-weight: 400;
+  margin-left: 0.35em;
   opacity: 0.8;
 }
 
@@ -381,7 +368,7 @@ input[type='date'].field-input::-webkit-date-and-time-value {
   flex: 1;
   font-family: var(--font-hand);
   font-weight: 700;
-  font-size: 1.9rem;
+  font-size: 1.3rem;
   line-height: 1.1;
 }
 .card-grab {
@@ -408,7 +395,7 @@ input[type='date'].field-input::-webkit-date-and-time-value {
   padding-top: 0.55rem;
   font-family: var(--font-hand);
   font-weight: 600;
-  font-size: 1.3rem;
+  font-size: 0.95rem;
   line-height: 1.2;
   color: var(--ink-soft);
   text-align: right;
@@ -425,7 +412,7 @@ input[type='date'].field-input::-webkit-date-and-time-value {
   display: flex;
   align-items: center;
   font-family: var(--font-hand);
-  font-size: 1.3rem;
+  font-size: 0.95rem;
   color: var(--ink-soft);
   pointer-events: none;
 }
@@ -504,7 +491,7 @@ input[type='date'].field-input::-webkit-date-and-time-value {
   color: var(--ink-soft);
 }
 .empty .hand {
-  font-size: 1.6rem;
+  font-size: 1.15rem;
   color: var(--ink-pencil);
 }
 
@@ -513,7 +500,7 @@ input[type='date'].field-input::-webkit-date-and-time-value {
   place-items: center;
   min-height: 60dvh;
   font-family: var(--font-hand);
-  font-size: 1.8rem;
+  font-size: 1.25rem;
   color: var(--ink-soft);
   text-align: center;
   line-height: 1.3;

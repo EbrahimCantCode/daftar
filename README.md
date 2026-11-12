@@ -1,6 +1,6 @@
 # Daftar
 
-A personal spending ledger that looks and feels like a paper notebook. It's for one person on one device: no accounts, no backend, and your data never leaves the phone. Amounts are in Bahraini dinars (BD, 3 decimals).
+A personal spending ledger that looks and feels like a typewritten paper notebook. It's for one person on one device: no accounts, no backend, and your data never leaves the phone. Amounts are in Bahraini dinars (BD, 3 decimals).
 
 - **Quick add.** The pen button opens a sheet. Type an amount and what it was for (suggestions are ranked by how often you use them), then write it down.
 - **Monthly items.** Savings, gym, subscriptions and so on are written into the ledger automatically each month on their day. Missed months are filled in when you next open the app. Day 31 falls on the last day of shorter months.

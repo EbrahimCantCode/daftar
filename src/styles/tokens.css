@@ -35,8 +35,8 @@
   --gutter: 1rem;
   --rule-shift: -0.7rem; /* lifts the rules so text sits on them rather than floating above */
 
-  --font-hand: 'Caveat', 'Segoe Print', 'Bradley Hand', cursive;
-  --font-text: 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-hand: 'Courier Prime', 'Courier New', monospace;
+  --font-text: 'Courier Prime', 'Courier New', monospace;
 
   --wobble: 255px 15px 225px 15px / 15px 225px 15px 255px;
   --wobble-alt: 15px 225px 15px 255px / 255px 15px 225px 15px;

@@ -3,9 +3,8 @@ import type { MonthTotals } from '../lib/totals';
 import { Amount } from './Amount';
 
 export function SummaryNote({ totals, left }: { totals: MonthTotals; left: number | undefined }) {
-  const hasLeft = left !== undefined;
   return (
-    <section class={`sticky${hasLeft ? ' has-left' : ''}`} aria-label="Month summary">
+    <section class="sticky has-left" aria-label="Month summary">
       <dl class="sum-rows">
         <div class="sum-row ink-pencil">
           <dt>Fixed</dt>
@@ -31,20 +30,19 @@ export function SummaryNote({ totals, left }: { totals: MonthTotals; left: numbe
             <Amount fils={totals.totalOutFils} />
           </dd>
         </div>
-        {hasLeft && (
-          <div class={`sum-row left${left < 0 ? ' negative ink-red' : ''}`}>
-            <dt>Left this month</dt>
-            <dd>
+        <div class={`sum-row left${left !== undefined && left < 0 ? ' negative ink-red' : ''}`}>
+          <dt>Left</dt>
+          <dd>
+            {left !== undefined ? (
               <Amount fils={left} />
-            </dd>
-          </div>
-        )}
+            ) : (
+              <a class="sticky-link" href={href('settings')}>
+                Set income
+              </a>
+            )}
+          </dd>
+        </div>
       </dl>
-      {!hasLeft && (
-        <a class="sticky-hint" href={href('settings')}>
-          Add your income to see what’s left
-        </a>
-      )}
     </section>
   );
 }

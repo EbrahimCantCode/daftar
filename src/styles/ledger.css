@@ -29,7 +29,7 @@
   color: var(--ink);
   font-family: var(--font-hand);
   font-weight: 700;
-  font-size: 1.35rem;
+  font-size: 1rem;
   line-height: 1;
   cursor: pointer;
   transform: translateY(4px);
@@ -62,11 +62,11 @@
   padding-top: calc(var(--line) * 0.85);
   font-family: var(--font-hand);
   font-weight: 700;
-  font-size: 2.6rem;
+  font-size: 1.9rem;
   line-height: var(--line);
 }
 .month-title .year {
-  font-size: 1.6rem;
+  font-size: 1.15rem;
   color: var(--ink-soft);
 }
 .month-title .today-link {
@@ -127,6 +127,11 @@
 .sticky.has-left {
   height: calc(var(--line) * 5);
 }
+.sticky {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 .sticky::before {
   /* washi tape */
   content: '';
@@ -154,13 +159,13 @@
 .sum-row dt {
   font-family: var(--font-hand);
   font-weight: 600;
-  font-size: 1.4rem;
+  font-size: 1rem;
 }
 .sum-row dd {
   margin: 0;
 }
 .sum-row .amount {
-  font-size: 1.45rem;
+  font-size: 1.0625rem;
 }
 .sum-row.total {
   margin-top: 0.35rem;
@@ -171,25 +176,29 @@
 .sum-row.total dt,
 .sum-row.left dt {
   font-weight: 700;
-  font-size: 1.55rem;
+  font-size: 1.1rem;
 }
 .sum-row.total .amount,
 .sum-row.left .amount {
   font-weight: 700;
-  font-size: 1.7rem;
+  font-size: 1.2rem;
 }
 .sum-row.left.negative .amount {
   text-decoration: underline wavy;
   text-decoration-thickness: 1px;
   text-underline-offset: 5px;
 }
-.sticky-hint {
-  position: absolute;
-  right: 0.75rem;
-  bottom: -1.9rem;
-  font-size: 0.85rem;
-  color: var(--ink-soft);
-  transform: rotate(1.2deg);
+.sticky-link {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: inherit;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+/* Typed labels on the note. */
+.sum-row dt {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 /* Sticky-note inks are a touch darker so they keep contrast on yellow. */
 .sticky .ink-pencil {
@@ -212,12 +221,12 @@
   height: var(--line);
   font-family: var(--font-hand);
   font-weight: 700;
-  font-size: 1.5rem;
+  font-size: 1.05rem;
   line-height: var(--line);
   color: var(--ink);
 }
 .day-head .amount {
-  font-size: 1.2rem;
+  font-size: 0.9rem;
   color: var(--ink-soft);
   padding-right: 0.25rem;
 }
@@ -260,7 +269,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 1.0625rem;
+  font-size: 1rem;
 }
 .entry-tag {
   flex: none;

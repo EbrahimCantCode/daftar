@@ -18,7 +18,7 @@
   width: 2.6rem;
   font-family: var(--font-hand);
   font-weight: 700;
-  font-size: 1.3rem;
+  font-size: 0.95rem;
   color: var(--ink-soft);
 }
 .rec-row.is-paused .entry {
@@ -32,7 +32,7 @@
 .paused-tag {
   flex: none;
   font-family: var(--font-hand);
-  font-size: 1.15rem;
+  font-size: 0.85rem;
   color: var(--ink-red);
   transform: rotate(-4deg);
 }
@@ -50,7 +50,7 @@
 .rec-totals dt {
   font-family: var(--font-hand);
   font-weight: 700;
-  font-size: 1.35rem;
+  font-size: 1rem;
 }
 .rec-totals dd {
   margin: 0;
@@ -72,7 +72,7 @@
   display: block;
   font-family: var(--font-hand);
   font-weight: 700;
-  font-size: 1.6rem;
+  font-size: 1.15rem;
   line-height: var(--line);
 }
 .setting .hint {
@@ -116,7 +116,7 @@
   line-height: 1.5;
 }
 .import-preview h4 {
-  font-size: 1.4rem;
+  font-size: 1.05rem;
   line-height: 1.4;
   word-break: break-all;
 }

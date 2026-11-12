@@ -1,7 +1,6 @@
-import '@fontsource/caveat/latin-600.css';
-import '@fontsource/caveat/latin-700.css';
-import '@fontsource/atkinson-hyperlegible/latin-400.css';
-import '@fontsource/atkinson-hyperlegible/latin-700.css';
+import '@fontsource/courier-prime/latin-400.css';
+import '@fontsource/courier-prime/latin-700.css';
+import '@fontsource/courier-prime/latin-400-italic.css';
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/components.css';
