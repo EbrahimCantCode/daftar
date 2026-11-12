@@ -1,3 +1,17 @@
-import { render } from 'preact';
+import '@fontsource/caveat/latin-600.css';
+import '@fontsource/caveat/latin-700.css';
+import '@fontsource/atkinson-hyperlegible/latin-400.css';
+import '@fontsource/atkinson-hyperlegible/latin-700.css';
+import './styles/tokens.css';
+import './styles/base.css';
+import './styles/components.css';
+import './styles/ledger.css';
 
-render(<h1>Daftar</h1>, document.getElementById('app')!);
+import { render } from 'preact';
+import { App } from './app';
+import { init } from './state/store';
+import { initTheme } from './theme';
+
+initTheme();
+render(<App />, document.getElementById('app')!);
+void init();

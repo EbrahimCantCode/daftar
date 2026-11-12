@@ -103,9 +103,12 @@ ol {
   left: 0.55rem;
   width: 1.5rem;
   pointer-events: none;
-  background-image:
-    radial-gradient(circle at 50% 48%, var(--hole-shadow) 0 0.5rem, transparent 0.56rem),
-    radial-gradient(circle at 50% 54%, var(--hole) 0 0.5rem, transparent 0.56rem);
+  background-image: radial-gradient(
+    circle at 50% 50%,
+    var(--hole) 0 0.42rem,
+    var(--hole-shadow) 0.42rem 0.5rem,
+    transparent 0.54rem
+  );
   background-size: 100% calc(var(--line) * 3);
   background-repeat: repeat-y;
   opacity: 0.9;

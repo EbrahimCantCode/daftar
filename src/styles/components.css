@@ -344,14 +344,6 @@ input[type='date'].field-input::-webkit-date-and-time-value {
   padding: 0.75rem 1rem calc(1rem + env(safe-area-inset-bottom));
   border-radius: 18px 18px 0 0;
   background-color: var(--card);
-  background-image: linear-gradient(
-    to bottom,
-    transparent calc(var(--sheet-line) * 1.5 - 1px),
-    var(--margin-line) calc(var(--sheet-line) * 1.5 - 1px),
-    var(--margin-line) calc(var(--sheet-line) * 1.5 + 1px),
-    transparent calc(var(--sheet-line) * 1.5 + 1px)
-  );
-  background-repeat: no-repeat;
   box-shadow: 0 -6px 30px rgba(0, 0, 0, 0.2);
 }
 @media (min-width: 46rem) {
@@ -380,8 +372,10 @@ input[type='date'].field-input::-webkit-date-and-time-value {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  min-height: calc(var(--sheet-line) * 1.5 - 0.75rem);
-  margin-bottom: 0.75rem;
+  min-height: 3.25rem;
+  margin: 0 -1rem 1rem;
+  padding: 0.25rem 0.5rem 0.25rem 1rem;
+  border-bottom: 2px solid var(--margin-line);
 }
 .card-title {
   flex: 1;

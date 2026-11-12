@@ -1,4 +1,4 @@
-import type { Entry } from '../types';
+import type { Entry, EntryType } from '../types';
 import { monthOf } from './dates';
 import { SpellingTally, descriptionKey } from './text';
 
@@ -57,6 +57,8 @@ export interface BreakdownRow {
   label: string;
   totalFils: number;
   count: number;
+  /** The group's entry type, or 'spend' when it mixes types. Used for the ink colour. */
+  type: EntryType;
 }
 
 /** Top descriptions by total, grouped case-insensitively; the rest folded into "Other". */
@@ -66,11 +68,12 @@ export function breakdown(entries: readonly Entry[], top = 5): BreakdownRow[] {
     const key = descriptionKey(e.description);
     let g = groups.get(key);
     if (!g) {
-      g = { row: { key, label: '', totalFils: 0, count: 0 }, tally: new SpellingTally() };
+      g = { row: { key, label: '', totalFils: 0, count: 0, type: e.type }, tally: new SpellingTally() };
       groups.set(key, g);
     }
     g.row.totalFils += e.amountFils;
     g.row.count++;
+    if (g.row.type !== e.type) g.row.type = 'spend';
     g.tally.add(e.description, e.createdAt);
   }
   const rows = [...groups.values()]
@@ -86,6 +89,7 @@ export function breakdown(entries: readonly Entry[], top = 5): BreakdownRow[] {
       label: `Other (${rest.length})`,
       totalFils: rest.reduce((s, r) => s + r.totalFils, 0),
       count: rest.reduce((s, r) => s + r.count, 0),
+      type: 'spend',
     },
   ];
 }
