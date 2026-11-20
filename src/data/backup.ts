@@ -1,9 +1,10 @@
 import { toCsv } from '../domain/csv';
 import type { DataSnapshot } from '../domain/types';
+import type { LegacySnapshot } from '../domain/migrate';
 import { downloadText } from './files';
 
 /** Downloads everything as `daftar-YYYY-MM-DD.csv`. */
-export function downloadBackup(data: DataSnapshot, today: string): void {
+export function downloadBackup(data: DataSnapshot | LegacySnapshot, today: string): void {
   downloadText(toCsv(data), `daftar-${today}.csv`, 'text/csv;charset=utf-8');
 }
 

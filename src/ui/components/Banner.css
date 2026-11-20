@@ -5,6 +5,8 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  /* 1.5 lines plus 0.25-line margins: two whole ruled lines, so the page stays on the rules. */
+  height: calc(var(--line) * 1.5);
   margin: calc(var(--line) * 0.25) 0;
   padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3);
   border: 2px dashed var(--ink-soft);
@@ -26,4 +28,14 @@
 .banner a {
   font-weight: 700;
   color: var(--ink-blue);
+}
+.banner-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  color: var(--ink-blue);
+  text-decoration: underline;
+  cursor: pointer;
 }

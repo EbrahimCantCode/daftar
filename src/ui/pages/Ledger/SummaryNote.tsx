@@ -1,19 +1,16 @@
 import type { ComponentChildren } from 'preact';
-import { ENTRY_TYPES, inkVar } from '../../../domain/entryTypes';
-import type { MonthTotals } from '../../../domain/totals';
+import { inkVar } from '../../../domain/entryTypes';
+import type { Totals } from '../../../domain/totals';
 import type { EntryType } from '../../../domain/types';
-import { href } from '../../../state/router';
 import { Amount } from '../../components/Amount';
-import { StickyNote } from '../../components/StickyNote';
+import { StickyNote, noteLines } from '../../components/StickyNote';
 
 /** One line on the note, inked in its entry type's colour. */
-function TypeRow({ type, label, fils }: { type: EntryType; label?: string; fils: number }) {
+function TypeRow({ type, label, children }: { type: EntryType; label: string; children: ComponentChildren }) {
   return (
     <div class="sum-row inked" style={{ '--row-ink': inkVar(type) }}>
-      <dt>{label ?? ENTRY_TYPES[type].label}</dt>
-      <dd>
-        <Amount fils={fils} />
-      </dd>
+      <dt>{label}</dt>
+      <dd>{children}</dd>
     </div>
   );
 }
@@ -27,24 +24,43 @@ function SumRow({ class: cls, label, children }: { class: string; label: string;
   );
 }
 
-export function SummaryNote({ totals, left }: { totals: MonthTotals; left: number | undefined }) {
+interface SummaryNoteProps {
+  totals: Totals;
+  left: number | undefined;
+  /** Offer "Log salary" when this cycle has no income yet. */
+  onLogSalary?: () => void;
+}
+
+export function SummaryNote({ totals, left, onLogSalary }: SummaryNoteProps) {
+  const noIncome = totals.incomeFils === 0;
   return (
-    <StickyNote label="Month summary" tall>
+    <StickyNote label="Cycle summary" lines={noteLines(5)}>
       <dl class="sum-rows">
-        <TypeRow type="fixed" fils={totals.fixedFils} />
-        <TypeRow type="spend" label="Spent" fils={totals.spentFils} />
-        <TypeRow type="savings" label="Saved" fils={totals.savedFils} />
+        <TypeRow type="income" label="Income">
+          {noIncome && onLogSalary ? (
+            <button type="button" class="sticky-link" onClick={onLogSalary}>
+              Log salary
+            </button>
+          ) : noIncome ? (
+            '–'
+          ) : (
+            <Amount fils={totals.incomeFils} />
+          )}
+        </TypeRow>
+        <TypeRow type="fixed" label="Fixed">
+          <Amount fils={totals.fixedFils} />
+        </TypeRow>
+        <TypeRow type="spend" label="Spent">
+          <Amount fils={totals.spentFils} />
+        </TypeRow>
+        <TypeRow type="savings" label="Saved">
+          <Amount fils={totals.savedFils} />
+        </TypeRow>
         <SumRow class="total" label="Total out">
           <Amount fils={totals.totalOutFils} />
         </SumRow>
         <SumRow class={`left${left !== undefined && left < 0 ? ' negative ink-red' : ''}`} label="Left">
-          {left !== undefined ? (
-            <Amount fils={left} />
-          ) : (
-            <a class="sticky-link" href={href('settings')}>
-              Set income
-            </a>
-          )}
+          {left !== undefined ? <Amount fils={left} /> : '–'}
         </SumRow>
       </dl>
     </StickyNote>

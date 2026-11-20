@@ -1,13 +1,29 @@
-import { DEFAULT_SETTINGS, type DataSnapshot, type Entry, type RecurringItem, type Settings, type Theme } from './types';
+import {
+  DEFAULT_SETTINGS,
+  SCHEMA_VERSION,
+  type DataSnapshot,
+  type Entry,
+  type LegacyRecurringItem,
+  type LegacySettings,
+  type RecurringItem,
+  type Settings,
+  type Theme,
+} from './types';
 import { isValidDate, isValidMonth } from './dates';
+import { ENTRY_TYPE_IDS, RECURRING_TYPE_IDS, isEntryType, isRecurringType } from './entryTypes';
+import { migrateToV2, type LegacySnapshot } from './migrate';
 import { filsToPlain, parseFils } from './money';
 import { cleanDescription } from './text';
 
 // One CSV holds everything. The `kind` column says what each row is:
 //   entry     — a ledger entry
-//   recurring — a monthly recurring item
-//   setting   — the single settings row (income, theme, daily goal)
+//   recurring — a recurring item
+//   setting   — the single settings row
 // Columns that do not apply to a row's kind are left empty.
+//
+// Files written by the first version (calendar months) have `next_month` and
+// `income` instead of `next_cycle` and `payday_day`; they're migrated on import.
+// The same columns let a pre-migration backup be written from version-1 data.
 
 export const CSV_COLUMNS = [
   'kind',
@@ -16,16 +32,23 @@ export const CSV_COLUMNS = [
   'amount',
   'description',
   'type',
+  'salary',
   'recurring_id',
+  'recurring_cycle',
   'created_at',
   'name',
+  'timing',
   'day_of_month',
   'active',
-  'next_month',
-  'income',
+  'next_cycle',
+  'payday_day',
+  'usual_salary',
   'theme',
   'daily_goal',
   'daily_goal_since',
+  // version-1 columns
+  'next_month',
+  'income',
 ] as const;
 type Column = (typeof CSV_COLUMNS)[number];
 type Row = Partial<Record<Column, string>>;
@@ -40,17 +63,23 @@ function line(row: Row): string {
   return CSV_COLUMNS.map((c) => escapeCell(row[c] ?? '')).join(',');
 }
 
-export function toCsv(data: DataSnapshot): string {
+const plain = (fils: number | undefined) => (fils === undefined ? '' : filsToPlain(fils));
+
+/** Writes everything to CSV. Accepts version-1 data too, for the backup taken before migrating. */
+export function toCsv(data: DataSnapshot | LegacySnapshot): string {
   const rows: Row[] = [];
+  const s = data.settings as Partial<Settings & LegacySettings>;
   rows.push({
     kind: 'setting',
-    income: data.settings.monthlyIncomeFils === undefined ? '' : filsToPlain(data.settings.monthlyIncomeFils),
-    theme: data.settings.theme,
-    daily_goal: data.settings.dailyGoalFils === undefined ? '' : filsToPlain(data.settings.dailyGoalFils),
-    daily_goal_since: data.settings.dailyGoalSince ?? '',
+    payday_day: s.paydayDay === undefined ? '' : String(s.paydayDay),
+    usual_salary: plain(s.usualSalaryFils),
+    income: plain(s.monthlyIncomeFils),
+    theme: s.theme,
+    daily_goal: plain(s.dailyGoalFils),
+    daily_goal_since: s.dailyGoalSince ?? '',
   });
   for (const r of data.recurring) {
-    rows.push({
+    const row: Row = {
       kind: 'recurring',
       id: r.id,
       amount: filsToPlain(r.amountFils),
@@ -59,8 +88,14 @@ export function toCsv(data: DataSnapshot): string {
       name: r.name,
       day_of_month: String(r.dayOfMonth),
       active: String(r.active),
-      next_month: r.nextMonth,
-    });
+    };
+    if ('nextCycle' in r) {
+      row.timing = r.timing;
+      row.next_cycle = r.nextCycle;
+    } else {
+      row.next_month = r.nextMonth;
+    }
+    rows.push(row);
   }
   const entries = [...data.entries].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : a.createdAt - b.createdAt));
   for (const e of entries) {
@@ -71,7 +106,9 @@ export function toCsv(data: DataSnapshot): string {
       amount: filsToPlain(e.amountFils),
       description: e.description,
       type: e.type,
+      salary: e.salary ? 'true' : '',
       recurring_id: e.recurringId ?? '',
+      recurring_cycle: e.recurringCycle ?? '',
       created_at: new Date(e.createdAt).toISOString(),
     });
   }
@@ -141,17 +178,19 @@ export interface ImportError {
 }
 
 export interface ImportPreview {
+  /** Always in the current format: version-1 files are migrated while parsing. */
   data: DataSnapshot;
   /** True when the file contained a settings row. */
   hasSettings: boolean;
+  /** True when the file was written by the first version (calendar months). */
+  legacy: boolean;
   errors: ImportError[];
   firstDate?: string;
   lastDate?: string;
 }
 
-const ENTRY_TYPES = new Set(['spend', 'fixed', 'savings']);
-const RECURRING_TYPES = new Set(['fixed', 'savings']);
 const THEMES = new Set(['system', 'light', 'dark']);
+const list = (ids: string[]) => `${ids.slice(0, -1).join(', ')} or ${ids[ids.length - 1]}`;
 
 function parseTimestamp(value: string): number | null {
   if (!value) return null;
@@ -163,26 +202,31 @@ function parseTimestamp(value: string): number | null {
 /** Parses and validates a CSV produced by toCsv. Any error means nothing should be imported. */
 export function parseImport(text: string, now: number = Date.now()): ImportPreview {
   const errors: ImportError[] = [];
-  const data: DataSnapshot = { entries: [], recurring: [], settings: { ...DEFAULT_SETTINGS } };
+  const entries: Entry[] = [];
+  const recurring: (RecurringItem | LegacyRecurringItem)[] = [];
+  let settings: Settings | LegacySettings = { ...DEFAULT_SETTINGS };
   let hasSettings = false;
+  let legacy = false;
+  const empty = (): ImportPreview => ({ data: { entries: [], recurring: [], settings: { ...DEFAULT_SETTINGS } }, hasSettings, legacy, errors });
 
   let rows: { line: number; cells: string[] }[];
   try {
     rows = parseCsvRows(text);
   } catch (err) {
-    return { data, hasSettings, errors: [{ line: 0, message: (err as Error).message }] };
+    errors.push({ line: 0, message: (err as Error).message });
+    return empty();
   }
   const header = rows.shift();
-  if (!header) return { data, hasSettings, errors: [{ line: 1, message: 'The file is empty.' }] };
+  if (!header) {
+    errors.push({ line: 1, message: 'The file is empty.' });
+    return empty();
+  }
 
   const index = new Map(header.cells.map((name, i) => [name.trim().toLowerCase(), i]));
   const missing = ['kind', 'id', 'date', 'amount', 'description', 'type'].filter((c) => !index.has(c));
   if (missing.length) {
-    return {
-      data,
-      hasSettings,
-      errors: [{ line: header.line, message: `This doesn't look like a Daftar export (missing columns: ${missing.join(', ')}).` }],
-    };
+    errors.push({ line: header.line, message: `This doesn't look like a Daftar export (missing columns: ${missing.join(', ')}).` });
+    return empty();
   }
   const get = (cells: string[], col: Column) => {
     const i = index.get(col);
@@ -203,17 +247,22 @@ export function parseImport(text: string, now: number = Date.now()): ImportPrevi
       const description = cleanDescription(get(cells, 'description'));
       const type = get(cells, 'type').toLowerCase();
       const recurringId = get(cells, 'recurring_id');
+      const recurringCycle = get(cells, 'recurring_cycle');
       const createdAt = parseTimestamp(get(cells, 'created_at')) ?? now;
+      const before = errors.length;
       if (!id) err('Entry is missing an id.');
       else if (entryIds.has(id)) err(`Duplicate entry id "${id}".`);
       if (!isValidDate(date)) err(`Invalid date "${date}" (expected YYYY-MM-DD).`);
       if (amountFils === null) err(`Invalid amount "${get(cells, 'amount')}".`);
       if (!description) err('Entry is missing a description.');
-      if (!ENTRY_TYPES.has(type)) err(`Invalid type "${type}" (expected spend, fixed or savings).`);
-      if (id && !entryIds.has(id) && isValidDate(date) && amountFils !== null && description && ENTRY_TYPES.has(type)) {
-        const entry: Entry = { id, date, amountFils, description, type: type as Entry['type'], createdAt };
+      if (!isEntryType(type)) err(`Invalid type "${type}" (expected ${list(ENTRY_TYPE_IDS)}).`);
+      if (recurringCycle && !isValidMonth(recurringCycle)) err(`Invalid recurring_cycle "${recurringCycle}" (expected YYYY-MM).`);
+      if (errors.length === before && isEntryType(type)) {
+        const entry: Entry = { id, date, amountFils: amountFils!, description, type, createdAt };
+        if (type === 'income' && get(cells, 'salary').toLowerCase() === 'true') entry.salary = true;
         if (recurringId) entry.recurringId = recurringId;
-        data.entries.push(entry);
+        if (recurringCycle) entry.recurringCycle = recurringCycle;
+        entries.push(entry);
       }
       if (id) entryIds.add(id);
     } else if (kind === 'recurring') {
@@ -223,7 +272,9 @@ export function parseImport(text: string, now: number = Date.now()): ImportPrevi
       const day = Number(get(cells, 'day_of_month'));
       const type = get(cells, 'type').toLowerCase();
       const active = get(cells, 'active').toLowerCase();
+      const nextCycle = get(cells, 'next_cycle');
       const nextMonth = get(cells, 'next_month');
+      const timing = get(cells, 'timing').toLowerCase() || 'day';
       const createdAt = parseTimestamp(get(cells, 'created_at')) ?? now;
       const before = errors.length;
       if (!id) err('Recurring item is missing an id.');
@@ -231,21 +282,18 @@ export function parseImport(text: string, now: number = Date.now()): ImportPrevi
       if (!name) err('Recurring item is missing a name.');
       if (amountFils === null) err(`Invalid amount "${get(cells, 'amount')}".`);
       if (!Number.isInteger(day) || day < 1 || day > 31) err(`Invalid day of month "${get(cells, 'day_of_month')}".`);
-      if (!RECURRING_TYPES.has(type)) err(`Invalid type "${type}" (expected fixed or savings).`);
+      if (!isRecurringType(type)) err(`Invalid type "${type}" (expected ${list(RECURRING_TYPE_IDS)}).`);
       if (active !== 'true' && active !== 'false') err(`Invalid active value "${active}" (expected true or false).`);
-      if (!isValidMonth(nextMonth)) err(`Invalid next_month "${nextMonth}" (expected YYYY-MM).`);
-      if (errors.length === before) {
-        const item: RecurringItem = {
-          id,
-          name,
-          amountFils: amountFils!,
-          dayOfMonth: day,
-          type: type as RecurringItem['type'],
-          active: active === 'true',
-          nextMonth,
-          createdAt,
-        };
-        data.recurring.push(item);
+      if (timing !== 'day' && timing !== 'payday') err(`Invalid timing "${timing}" (expected day or payday).`);
+      if (!isValidMonth(nextCycle || nextMonth)) err(`Invalid next_cycle "${nextCycle}" (expected YYYY-MM).`);
+      if (errors.length === before && isRecurringType(type)) {
+        const common = { id, name, amountFils: amountFils!, dayOfMonth: day, type, active: active === 'true', createdAt };
+        if (nextCycle) {
+          recurring.push({ ...common, timing: timing as RecurringItem['timing'], nextCycle });
+        } else {
+          recurring.push({ ...common, nextMonth });
+          legacy = true;
+        }
       }
       if (id) recurringIds.add(id);
     } else if (kind === 'setting') {
@@ -254,15 +302,31 @@ export function parseImport(text: string, now: number = Date.now()): ImportPrevi
         continue;
       }
       hasSettings = true;
-      const income = get(cells, 'income');
       const theme = get(cells, 'theme').toLowerCase() || 'system';
-      const settings: Settings = { theme: theme as Theme };
-      if (income) {
-        const fils = parseFils(income);
-        if (fils === null) err(`Invalid income "${income}".`);
-        else settings.monthlyIncomeFils = fils;
-      }
       if (!THEMES.has(theme)) err(`Invalid theme "${theme}".`);
+      const amount = (col: Column, label: string): number | undefined => {
+        const v = get(cells, col);
+        if (!v) return undefined;
+        const fils = parseFils(v);
+        if (fils === null) err(`Invalid ${label} "${v}".`);
+        return fils ?? undefined;
+      };
+      const paydayText = get(cells, 'payday_day');
+      let s: Settings | LegacySettings;
+      if (paydayText) {
+        const paydayDay = Number(paydayText);
+        if (!Number.isInteger(paydayDay) || paydayDay < 1 || paydayDay > 31) err(`Invalid payday_day "${paydayText}".`);
+        const v2: Settings = { theme: theme as Theme, paydayDay, schemaVersion: SCHEMA_VERSION };
+        const salary = amount('usual_salary', 'usual salary');
+        if (salary !== undefined) v2.usualSalaryFils = salary;
+        s = v2;
+      } else {
+        legacy = true;
+        const v1: LegacySettings = { theme: theme as Theme };
+        const income = amount('income', 'income');
+        if (income !== undefined) v1.monthlyIncomeFils = income;
+        s = v1;
+      }
       const goal = get(cells, 'daily_goal');
       if (goal) {
         const fils = parseFils(goal);
@@ -270,16 +334,25 @@ export function parseImport(text: string, now: number = Date.now()): ImportPrevi
         if (fils === null) err(`Invalid daily goal "${goal}".`);
         else if (!isValidDate(since)) err(`Invalid daily_goal_since "${since}" (expected YYYY-MM-DD).`);
         else {
-          settings.dailyGoalFils = fils;
-          settings.dailyGoalSince = since;
+          s.dailyGoalFils = fils;
+          s.dailyGoalSince = since;
         }
       }
-      data.settings = settings;
+      settings = s;
     } else {
       err(`Unknown row kind "${get(cells, 'kind')}" (expected entry, recurring or setting).`);
     }
   }
 
+  let data: DataSnapshot;
+  if (legacy) {
+    const v1Settings: LegacySettings = 'paydayDay' in settings ? { theme: settings.theme } : settings;
+    data = migrateToV2({ entries, recurring, settings: v1Settings }, []).data;
+    // A version-1 file never asks to log a salary again on import.
+    delete data.settings.salaryOfferPending;
+  } else {
+    data = { entries, recurring: recurring as RecurringItem[], settings: settings as Settings };
+  }
   const dates = data.entries.map((e) => e.date).sort();
-  return { data, hasSettings, errors, firstDate: dates[0], lastDate: dates[dates.length - 1] };
+  return { data, hasSettings, legacy, errors, firstDate: dates[0], lastDate: dates[dates.length - 1] };
 }

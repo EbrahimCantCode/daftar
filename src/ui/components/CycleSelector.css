@@ -1,4 +1,4 @@
-/* ---- Month tabs (notebook dividers) -------------------------------------- */
+/* ---- Cycle tabs (notebook dividers) -------------------------------------- */
 
 .month-nav {
   display: flex;
@@ -69,11 +69,16 @@
   font-size: var(--fs-lg);
   color: var(--ink-soft);
 }
-.month-title .today-link {
-  margin-left: auto;
-  font-family: var(--font-text);
+.cycle-range {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  height: var(--line);
   font-size: var(--fs-note);
+  color: var(--ink-soft);
+}
+.cycle-range .today-link {
+  margin-left: auto;
   font-weight: 700;
   color: var(--ink-blue);
-  align-self: center;
 }

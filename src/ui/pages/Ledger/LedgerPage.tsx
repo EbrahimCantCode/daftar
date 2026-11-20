@@ -1,31 +1,30 @@
-import { signal } from '@preact/signals';
 import { useEffect, useRef } from 'preact/hooks';
-import { Breakdown } from './Breakdown';
-import { DayList } from './DayList';
-import { MonthNav } from './MonthNav';
-import { ReportBanner } from './ReportBanner';
-import { QuickAddSheet, onEntrySaved, openQuickAdd } from './QuickAddSheet';
-import { SummaryNote } from './SummaryNote';
-import { TodayGoal } from './TodayGoal';
+import { addMonths } from '../../../domain/dates';
+import { cycleFor, entriesInCycle } from '../../../domain/cycles';
+import type { Entry } from '../../../domain/types';
+import { breakdown, groupByDay, leftOf, outgoing, totalsOf } from '../../../domain/totals';
+import { href, reportHref } from '../../../state/router';
+import { selectCycle, turn, viewCycle, viewingCurrent } from '../../../state/selection';
+import { currentCycle, cycleCtx, entries, goalHeatValue } from '../../../state/store';
+import { CycleSelector } from '../../components/CycleSelector';
 import { EmptyState } from '../../components/EmptyState';
 import { Fab } from '../../components/Fab';
 import { IconButton } from '../../components/IconButton';
 import { TopBar } from '../../components/TopBar';
-import { addMonths, monthOf } from '../../../domain/dates';
-import { breakdown, entriesInMonth, groupByDay, leftThisMonth, monthTotals } from '../../../domain/totals';
-import { href, reportHref } from '../../../state/router';
-import { entries, goalHeatValue, settings, today } from '../../../state/store';
+import { Breakdown } from './Breakdown';
+import { DayList } from './DayList';
+import { LedgerBanners } from './LedgerBanners';
+import { QuickAddSheet, onEntrySaved, openQuickAdd } from './QuickAddSheet';
+import { SalarySheet, onIncomeSaved, openSalary } from './SalarySheet';
+import { SummaryNote } from './SummaryNote';
+import { TodayGoal } from './TodayGoal';
 
-const viewMonth = signal(monthOf(today.value));
-const turn = signal<'next' | 'prev' | null>(null);
+/** After saving, turn to the cycle the entry landed in. */
+const showCycleOf = (date: string) => selectCycle(cycleFor(date, cycleCtx.value).key);
+onEntrySaved(showCycleOf);
+onIncomeSaved(showCycleOf);
 
-function goMonth(month: string) {
-  if (month === viewMonth.value) return;
-  turn.value = month > viewMonth.value ? 'next' : 'prev';
-  viewMonth.value = month;
-}
-
-onEntrySaved(goMonth);
+const editEntry = (e: Entry) => (e.type === 'income' ? openSalary(e) : openQuickAdd(e));
 
 /** Opens quick add when launched from the "Add expense" app shortcut (?add=1). */
 function handleLaunchParams() {
@@ -38,11 +37,10 @@ function handleLaunchParams() {
 }
 
 export function LedgerPage() {
-  const month = viewMonth.value;
-  const thisMonth = monthOf(today.value);
-  const monthEntries = entriesInMonth(entries.value, month);
-  const totals = monthTotals(monthEntries);
-  const left = leftThisMonth(settings.value.monthlyIncomeFils, totals);
+  const cycle = viewCycle.value;
+  const isCurrent = viewingCurrent.value;
+  const cycleEntries = entriesInCycle(entries.value, cycle);
+  const totals = totalsOf(cycleEntries);
   const touch = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
@@ -54,8 +52,8 @@ export function LedgerPage() {
       if (e.key === 'n' || e.key === '+') {
         e.preventDefault();
         openQuickAdd();
-      } else if (e.key === 'ArrowLeft') goMonth(addMonths(viewMonth.value, -1));
-      else if (e.key === 'ArrowRight') goMonth(addMonths(viewMonth.value, 1));
+      } else if (e.key === 'ArrowLeft') selectCycle(addMonths(viewCycle.value.key, -1));
+      else if (e.key === 'ArrowRight') selectCycle(addMonths(viewCycle.value.key, 1));
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -64,17 +62,18 @@ export function LedgerPage() {
   return (
     <div class="screen">
       <TopBar title="Daftar">
-        <IconButton icon="report" label="Month report" title href={reportHref(month)} />
+        <IconButton icon="wallet" label="Salary received" title onClick={() => openSalary()} />
+        <IconButton icon="report" label="Month report" title href={reportHref(cycle.key)} />
         <IconButton icon="repeat" label="Monthly items" title href={href('monthly')} />
         <IconButton icon="gear" label="Settings" title href={href('settings')} />
       </TopBar>
 
-      <ReportBanner />
-      <MonthNav month={month} current={thisMonth} onGo={goMonth} />
+      <LedgerBanners />
+      <CycleSelector cycle={cycle} currentKey={currentCycle.value.key} onGo={selectCycle} />
 
       <div class="month-viewport">
         <div
-          key={month}
+          key={cycle.key}
           class={`month-page${turn.value ? ` turn-${turn.value}` : ''}`}
           onTouchStart={(e) => {
             const t = e.touches[0];
@@ -87,20 +86,20 @@ export function LedgerPage() {
             if (!start || !t) return;
             const dx = t.clientX - start.x;
             const dy = t.clientY - start.y;
-            if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.8) goMonth(addMonths(month, dx < 0 ? 1 : -1));
+            if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.8) selectCycle(addMonths(cycle.key, dx < 0 ? 1 : -1));
           }}
         >
-          {month === thisMonth && <TodayGoal />}
-          <SummaryNote totals={totals} left={left} />
+          {isCurrent && <TodayGoal />}
+          <SummaryNote totals={totals} left={leftOf(totals)} onLogSalary={isCurrent ? () => openSalary() : undefined} />
 
-          {monthEntries.length === 0 ? (
+          {cycleEntries.length === 0 ? (
             <EmptyState title="Nothing written here yet.">
-              <p>{month === thisMonth ? 'Tap the pen to write down what you spend.' : 'No entries this month.'}</p>
+              <p>{isCurrent ? 'Tap the pen to write down what you spend.' : 'No entries in this cycle.'}</p>
             </EmptyState>
           ) : (
             <>
-              <DayList groups={groupByDay(monthEntries)} onEdit={openQuickAdd} />
-              <Breakdown rows={breakdown(monthEntries)} totalFils={totals.totalOutFils} />
+              <DayList groups={groupByDay(cycleEntries)} onEdit={editEntry} />
+              <Breakdown rows={breakdown(outgoing(cycleEntries))} totalFils={totals.totalOutFils} />
             </>
           )}
         </div>
@@ -108,6 +107,7 @@ export function LedgerPage() {
 
       <Fab icon="pen" label="Add expense" title="Add expense (N)" heat={goalHeatValue.value} onClick={() => openQuickAdd()} />
       <QuickAddSheet />
+      <SalarySheet />
     </div>
   );
 }

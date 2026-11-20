@@ -14,10 +14,10 @@ export function ReportPage() {
   const month = reportMonth.value!;
   const [includeEntries, setIncludeEntries] = useState(() => readPref(PREF_KEYS.reportIncludeEntries) !== 'false');
   const report = buildMonthReport({
-    month,
+    cycleKey: month,
     entries: entries.value,
     recurring: recurring.value,
-    incomeFils: settings.value.monthlyIncomeFils,
+    paydayDay: settings.value.paydayDay,
     today: today.value,
     includeEntries,
   });
@@ -27,7 +27,7 @@ export function ReportPage() {
   return (
     <div class="screen">
       <TopBar title={`${monthLabel(month, { short: true })} ${month.slice(0, 4)} report`} back />
-      <p class="page-intro">Paste it into Claude to ask about your month. Made on this device; nothing is sent.</p>
+      <p class="page-intro">Paste it into Claude to ask about this pay cycle. Made on this device; nothing is sent.</p>
 
       <div class="report-actions">
         <Button

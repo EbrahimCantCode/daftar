@@ -1,5 +1,5 @@
 import { signal } from '@preact/signals';
-import { addDays, isValidDate, monthLabel, monthOf } from '../../../domain/dates';
+import { addDays, isValidDate, monthLabel } from '../../../domain/dates';
 import { ENTRY_TYPES, inkVar } from '../../../domain/entryTypes';
 import { amountError, filsToPlain, formatFils, parseFils } from '../../../domain/money';
 import { suggest } from '../../../domain/suggest';
@@ -25,11 +25,11 @@ const busy = signal(false);
 let dialog: HTMLDialogElement | null = null;
 let amountInput: HTMLInputElement | null = null;
 let descInput: HTMLInputElement | null = null;
-let onSavedMonth: ((month: string) => void) | undefined;
+let onSaved: ((date: string) => void) | undefined;
 
-/** Called when an entry is saved into a month, so the ledger can turn to it. */
-export function onEntrySaved(fn: (month: string) => void) {
-  onSavedMonth = fn;
+/** Called with the date of a saved entry, so the ledger can turn to its cycle. */
+export function onEntrySaved(fn: (date: string) => void) {
+  onSaved = fn;
 }
 
 /**
@@ -82,7 +82,7 @@ async function save(e: Event) {
       showToast(`Wrote down ${formatFils(amountFils!)} · ${description}`);
     }
     close();
-    onSavedMonth?.(monthOf(date));
+    onSaved?.(date);
   } catch (err) {
     console.error(err);
     showToast('Could not save. Please try again.');
@@ -191,7 +191,10 @@ export function QuickAddSheet() {
         </FormRow>
 
         {entry?.recurringId && (
-          <Hint>This is the {monthLabel(monthOf(entry.date))} entry of a monthly item. Changes here only affect this month.</Hint>
+          <Hint>
+            This is the {monthLabel(entry.recurringCycle ?? entry.date.slice(0, 7)).split(' ')[0]} cycle’s entry of a monthly item. Changes here only
+            affect this cycle.
+          </Hint>
         )}
 
         <FormActions

@@ -1,10 +1,11 @@
 import { LedgerPage } from './ui/pages/Ledger/LedgerPage';
+import { MigrationPage } from './ui/pages/Migration/MigrationPage';
 import { MonthlyPage } from './ui/pages/Monthly/MonthlyPage';
 import { ReportPage } from './ui/pages/Report/ReportPage';
 import { SettingsPage } from './ui/pages/Settings/SettingsPage';
 import { Toast } from './ui/components/Toast';
 import { route } from './state/router';
-import { loadError, ready } from './state/store';
+import { loadError, migrationNeeded, ready } from './state/store';
 
 export function App() {
   if (loadError.value) {
@@ -21,6 +22,16 @@ export function App() {
       <main class="notebook" aria-busy="true">
         <p class="boot">Opening your daftar…</p>
       </main>
+    );
+  }
+  if (migrationNeeded.value) {
+    return (
+      <>
+        <main class="notebook">
+          <MigrationPage />
+        </main>
+        <Toast />
+      </>
     );
   }
   return (

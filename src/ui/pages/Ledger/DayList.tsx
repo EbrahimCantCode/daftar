@@ -6,7 +6,7 @@ import { Amount } from '../../components/Amount';
 import { EntryRow } from '../../components/EntryRow';
 import { Icon } from '../../components/Icon';
 
-/** The month's entries, one ruled block per day, newest day first. */
+/** A cycle's entries, one ruled block per day, newest day first. */
 export function DayList({ groups, onEdit }: { groups: DayGroup[]; onEdit: (entry: Entry) => void }) {
   return (
     <section aria-label="Entries">
@@ -23,11 +23,11 @@ export function DayList({ groups, onEdit }: { groups: DayGroup[]; onEdit: (entry
                   type={e.type}
                   amountFils={e.amountFils}
                   onClick={() => onEdit(e)}
-                  srText={`(${ENTRY_TYPES[e.type].srLabel}${e.recurringId ? ', monthly' : ''})`}
+                  srText={`(${ENTRY_TYPES[e.type].srLabel}${e.recurringId ? ', monthly' : ''}${e.salary ? ', salary' : ''})`}
                   tag={
-                    e.recurringId && (
+                    (e.recurringId || e.salary) && (
                       <span class="entry-tag" aria-hidden="true">
-                        <Icon name="repeat" />
+                        <Icon name={e.salary ? 'wallet' : 'repeat'} />
                       </span>
                     )
                   }

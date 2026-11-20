@@ -3,7 +3,7 @@ import { ENTRY_TYPES, ENTRY_TYPE_IDS, inkVar, isEntryType, isRecurringType } fro
 
 describe('entry type registry', () => {
   it('describes every type once, with ink from tokens', () => {
-    expect(ENTRY_TYPE_IDS).toEqual(['spend', 'fixed', 'savings']);
+    expect(ENTRY_TYPE_IDS).toEqual(['spend', 'fixed', 'savings', 'income']);
     for (const id of ENTRY_TYPE_IDS) {
       expect(ENTRY_TYPES[id].id).toBe(id);
       expect(ENTRY_TYPES[id].ink).toMatch(/^--ink-/);

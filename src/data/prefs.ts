@@ -21,4 +21,5 @@ export function writePref(key: string, value: string): void {
 export const PREF_KEYS = {
   reportIncludeEntries: 'daftar:report-include-entries',
   reportDismissed: 'daftar:report-dismissed',
+  paydayDismissed: 'daftar:payday-dismissed',
 } as const;

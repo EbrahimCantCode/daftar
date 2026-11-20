@@ -1,0 +1,15 @@
+/* ---- Checkbox --------------------------------------------------------- */
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--line);
+  line-height: 1.35;
+  cursor: pointer;
+}
+.check input {
+  width: 1.3rem;
+  height: 1.3rem;
+  accent-color: var(--ink-blue);
+}

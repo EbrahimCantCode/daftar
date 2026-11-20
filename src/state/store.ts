@@ -1,9 +1,11 @@
 import { computed, signal } from '@preact/signals';
-import * as db from '../data/db';
+import { downloadBackup } from '../data/backup';
 import { now } from '../data/clock';
-import { currentMonth, todayISO } from '../domain/dates';
-import { goalHeat, goalStreak, spendOnDay } from '../domain/goal';
+import * as db from '../data/db';
 import { newId } from '../data/id';
+import { todayISO } from '../domain/dates';
+import { buildCycleContext, cycleFor } from '../domain/cycles';
+import { goalHeat, goalStreak, spendOnDay } from '../domain/goal';
 import { resumeItem } from '../domain/recurring';
 import { buildSuggestions } from '../domain/suggest';
 import { cleanDescription } from '../domain/text';
@@ -14,6 +16,8 @@ export const recurring = signal<RecurringItem[]>([]);
 export const settings = signal<Settings>(DEFAULT_SETTINGS);
 export const ready = signal(false);
 export const loadError = signal<string | null>(null);
+/** True while version-1 data is waiting for the move to pay cycles. */
+export const migrationNeeded = signal(false);
 /** null until known; false when the browser declined (or does not support) persistent storage. */
 export const persisted = signal<boolean | null>(null);
 
@@ -32,6 +36,13 @@ function refreshToday() {
   }, next.getTime() - Date.now());
 }
 
+// ---- pay cycles -------------------------------------------------------------
+
+export const cycleCtx = computed(() => buildCycleContext(entries.value, settings.value.paydayDay));
+export const currentCycle = computed(() => cycleFor(today.value, cycleCtx.value));
+
+// ---- daily goal ---------------------------------------------------------------
+
 export const todaySpentFils = computed(() => spendOnDay(entries.value, today.value));
 /** 0–1: how close today's spending is to the daily goal; 0 when no goal is set. */
 export const goalHeatValue = computed(() => {
@@ -43,9 +54,15 @@ export const streak = computed(() => {
   return goal && since ? goalStreak(entries.value, goal, since, today.value) : null;
 });
 
-export const suggestions = computed(() => buildSuggestions(entries.value));
+export const suggestions = computed(() => buildSuggestions(entries.value.filter((e) => e.type !== 'income')));
 export const recurringSorted = computed(() =>
-  [...recurring.value].sort((a, b) => Number(b.active) - Number(a.active) || a.dayOfMonth - b.dayOfMonth || a.name.localeCompare(b.name)),
+  [...recurring.value].sort(
+    (a, b) =>
+      Number(b.active) - Number(a.active) ||
+      Number(b.timing === 'payday') - Number(a.timing === 'payday') ||
+      a.dayOfMonth - b.dayOfMonth ||
+      a.name.localeCompare(b.name),
+  ),
 );
 
 let database: db.DaftarDB | null = null;
@@ -67,8 +84,12 @@ async function reload() {
 export async function init(): Promise<void> {
   try {
     database = await db.openDaftarDB();
-    await db.runRecurring(database, currentMonth(now()));
-    await reload();
+    if (await db.needsMigration(database)) {
+      migrationNeeded.value = true;
+    } else {
+      await db.runRecurring(database, today.value);
+      await reload();
+    }
     ready.value = true;
   } catch (err) {
     console.error(err);
@@ -77,7 +98,7 @@ export async function init(): Promise<void> {
   }
   requestPersistence();
   refreshToday();
-  // Catch a day or month rollover while the app stays open in the background.
+  // Catch a day or cycle rollover while the app stays open in the background.
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState !== 'visible') return;
     refreshToday();
@@ -98,8 +119,22 @@ async function requestPersistence() {
 }
 
 export async function syncRecurring(): Promise<void> {
-  const added = await db.runRecurring(getDb(), currentMonth(now()));
-  if (added.length) entries.value = [...entries.value, ...added];
+  if (migrationNeeded.value || !database) return;
+  if (await db.runRecurring(getDb(), today.value)) await reload();
+}
+
+// ---- migration ----------------------------------------------------------------
+
+/** Downloads the data exactly as stored, before it's moved to pay cycles. */
+export async function downloadPreMigrationBackup(): Promise<void> {
+  downloadBackup(await db.loadForBackup(getDb()), today.value);
+}
+
+export async function runMigration(): Promise<void> {
+  await db.migrate(getDb());
+  migrationNeeded.value = false;
+  await db.runRecurring(getDb(), today.value);
+  await reload();
 }
 
 // ---- entries --------------------------------------------------------------
@@ -109,28 +144,41 @@ export interface EntryDraft {
   amountFils: number;
   description: string;
   type: Entry['type'];
+  salary?: boolean;
 }
+
+/** Salaries move cycle boundaries, so recurring posting has to catch up after any change to one. */
+const touchesCycles = (...list: (Entry | undefined)[]) => list.some((e) => e?.type === 'income' && e.salary);
 
 export async function addEntry(draft: EntryDraft): Promise<Entry> {
   const entry: Entry = { ...draft, description: cleanDescription(draft.description), id: newId(), createdAt: Date.now() };
+  if (!entry.salary) delete entry.salary;
   await db.putEntry(getDb(), entry);
   entries.value = [...entries.value, entry];
+  if (touchesCycles(entry)) await syncRecurring();
+  // The one-time "add this cycle's salary" offer is answered by logging any income.
+  if (entry.type === 'income' && settings.value.salaryOfferPending) await updateSettings({ salaryOfferPending: undefined });
   return entry;
 }
 
 export async function updateEntry(entry: Entry): Promise<void> {
+  const before = entries.value.find((e) => e.id === entry.id);
   const clean = { ...entry, description: cleanDescription(entry.description) };
+  if (!clean.salary) delete clean.salary;
   await db.putEntry(getDb(), clean);
   entries.value = entries.value.map((e) => (e.id === clean.id ? clean : e));
+  if (touchesCycles(before, clean)) await syncRecurring();
 }
 
 /** Deletes immediately; returns a function that puts the entry back. */
 export async function removeEntry(entry: Entry): Promise<() => Promise<void>> {
   await db.deleteEntry(getDb(), entry.id);
   entries.value = entries.value.filter((e) => e.id !== entry.id);
+  if (touchesCycles(entry)) await syncRecurring();
   return async () => {
     await db.putEntry(getDb(), entry);
     entries.value = [...entries.value.filter((e) => e.id !== entry.id), entry];
+    if (touchesCycles(entry)) await syncRecurring();
   };
 }
 
@@ -139,6 +187,7 @@ export async function removeEntry(entry: Entry): Promise<() => Promise<void>> {
 export interface RecurringDraft {
   name: string;
   amountFils: number;
+  timing: RecurringItem['timing'];
   dayOfMonth: number;
   type: RecurringItem['type'];
 }
@@ -149,7 +198,7 @@ export async function addRecurring(draft: RecurringDraft): Promise<void> {
     name: cleanDescription(draft.name),
     id: newId(),
     active: true,
-    nextMonth: currentMonth(now()),
+    nextCycle: currentCycle.value.key,
     createdAt: Date.now(),
   };
   await db.putRecurring(getDb(), item);
@@ -157,7 +206,7 @@ export async function addRecurring(draft: RecurringDraft): Promise<void> {
   await syncRecurring();
 }
 
-/** Changes future months only; entries already generated keep their values. */
+/** Changes future cycles only; entries already posted keep their values. */
 export async function updateRecurring(item: RecurringItem): Promise<void> {
   const clean = { ...item, name: cleanDescription(item.name) };
   await db.putRecurring(getDb(), clean);
@@ -165,7 +214,7 @@ export async function updateRecurring(item: RecurringItem): Promise<void> {
 }
 
 export async function setRecurringActive(item: RecurringItem, active: boolean): Promise<void> {
-  const next = active ? resumeItem(item, currentMonth(now())) : { ...item, active: false };
+  const next = active ? resumeItem(item, currentCycle.value.key) : { ...item, active: false };
   await db.putRecurring(getDb(), next);
   recurring.value = recurring.value.map((r) => (r.id === next.id ? next : r));
   if (active) await syncRecurring();
@@ -186,8 +235,10 @@ export async function updateSettings(patch: Partial<Settings>): Promise<void> {
   for (const key of Object.keys(next) as (keyof Settings)[]) {
     if (next[key] === undefined) delete next[key];
   }
+  const paydayChanged = next.paydayDay !== settings.value.paydayDay;
   await db.saveSettings(getDb(), next);
   settings.value = next;
+  if (paydayChanged) await syncRecurring();
 }
 
 export function snapshot(): DataSnapshot {
@@ -196,7 +247,7 @@ export function snapshot(): DataSnapshot {
 
 export async function importSnapshot(data: DataSnapshot, mode: ImportMode, includeSettings: boolean): Promise<void> {
   await db.importData(getDb(), data, mode, includeSettings);
-  await db.runRecurring(getDb(), currentMonth(now()));
+  await db.runRecurring(getDb(), today.value);
   await reload();
 }
 

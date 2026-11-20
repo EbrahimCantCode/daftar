@@ -3,7 +3,7 @@ import { ENTRY_TYPES, RECURRING_TYPE_IDS, inkVar } from '../../../domain/entryTy
 import { amountError, filsToPlain, parseFils } from '../../../domain/money';
 import { cleanDescription } from '../../../domain/text';
 import { addRecurring, removeRecurring, updateRecurring } from '../../../state/store';
-import type { RecurringItem, RecurringType } from '../../../domain/types';
+import type { RecurringItem, RecurringTiming, RecurringType } from '../../../domain/types';
 import { BottomSheet } from '../../components/BottomSheet';
 import { Button } from '../../components/Button';
 import { FormActions, FormRow, Hint } from '../../components/Form';
@@ -16,6 +16,7 @@ const nameText = signal('');
 const amountText = signal('');
 const dayText = signal('');
 const type = signal<RecurringType>('fixed');
+const timing = signal<RecurringTiming>('day');
 const errors = signal<{ name?: string; amount?: string; day?: string }>({});
 const confirmingDelete = signal(false);
 const busy = signal(false);
@@ -25,12 +26,13 @@ let nameInput: HTMLInputElement | null = null;
 let amountInput: HTMLInputElement | null = null;
 let dayInput: HTMLInputElement | null = null;
 
-export function openRecurring(item?: RecurringItem, preset?: { name: string; type: RecurringType }) {
+export function openRecurring(item?: RecurringItem, preset?: { name: string; type: RecurringType; timing?: RecurringTiming }) {
   editing.value = item ?? null;
   nameText.value = item?.name ?? preset?.name ?? '';
   amountText.value = item ? filsToPlain(item.amountFils) : '';
   dayText.value = item ? String(item.dayOfMonth) : '1';
   type.value = item?.type ?? preset?.type ?? 'fixed';
+  timing.value = item?.timing ?? preset?.timing ?? 'day';
   errors.value = {};
   confirmingDelete.value = false;
   if (!dialog || dialog.open) return;
@@ -38,6 +40,9 @@ export function openRecurring(item?: RecurringItem, preset?: { name: string; typ
   // With a preset name the next thing to fill in is the amount.
   (preset && !item ? amountInput : nameInput)?.focus();
 }
+
+/** Payday items don't use a day, but keep the last one so switching back restores it. */
+const dayToKeep = (typed: number, fallback: number) => (timing.value === 'day' ? typed : Number.isInteger(typed) && typed >= 1 && typed <= 31 ? typed : fallback);
 
 async function save(e: Event) {
   e.preventDefault();
@@ -48,7 +53,7 @@ async function save(e: Event) {
   const errs: typeof errors.value = {};
   if (!name) errs.name = 'Give it a name';
   if (amountFils === null) errs.amount = amountError('25 or 6.500');
-  if (!Number.isInteger(day) || day < 1 || day > 31) errs.day = 'A day from 1 to 31';
+  if (timing.value === 'day' && (!Number.isInteger(day) || day < 1 || day > 31)) errs.day = 'A day from 1 to 31';
   errors.value = errs;
   if (errs.name) return nameInput?.focus();
   if (errs.amount) return amountInput?.focus();
@@ -58,11 +63,11 @@ async function save(e: Event) {
   try {
     const current = editing.value;
     if (current) {
-      await updateRecurring({ ...current, name, amountFils: amountFils!, dayOfMonth: day, type: type.value });
+      await updateRecurring({ ...current, name, amountFils: amountFils!, dayOfMonth: dayToKeep(day, current.dayOfMonth), timing: timing.value, type: type.value });
       showToast('Saved. Applies from the next entry it writes.');
     } else {
-      await addRecurring({ name, amountFils: amountFils!, dayOfMonth: day, type: type.value });
-      showToast(`Added ${name}. This month’s entry is in the ledger.`);
+      await addRecurring({ name, amountFils: amountFils!, dayOfMonth: dayToKeep(day, 1), timing: timing.value, type: type.value });
+      showToast(`Added ${name}. This cycle’s entry is in the ledger.`);
     }
     dialog?.close();
   } catch (err) {
@@ -131,26 +136,40 @@ export function RecurringSheet() {
           {err.amount && <FieldError id="ri-amount-err">{err.amount}</FieldError>}
         </FormRow>
 
-        <FormRow label="Day" htmlFor="ri-day">
-          <TextInput
-            inputRef={(el) => {
-              dayInput = el;
-            }}
-            id="ri-day"
-            class="day-input"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            maxLength={2}
-            autoComplete="off"
-            value={dayText.value}
-            invalid={!!err.day}
-            describedBy="ri-day-hint"
-            onInput={(v) => (dayText.value = v)}
+        <FormRow label="When">
+          <SegmentedControl
+            label="When"
+            value={timing.value}
+            onChange={(t) => (timing.value = t)}
+            options={[
+              { value: 'payday', label: 'On payday' },
+              { value: 'day', label: 'On a day' },
+            ]}
           />
-          <p class={err.day ? 'field-error' : 'hint'} id="ri-day-hint">
-            {err.day ?? 'Day of the month. 29–31 fall on the last day of shorter months.'}
-          </p>
         </FormRow>
+
+        {timing.value === 'day' && (
+          <FormRow label="Day" htmlFor="ri-day">
+            <TextInput
+              inputRef={(el) => {
+                dayInput = el;
+              }}
+              id="ri-day"
+              class="day-input"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={2}
+              autoComplete="off"
+              value={dayText.value}
+              invalid={!!err.day}
+              describedBy="ri-day-hint"
+              onInput={(v) => (dayText.value = v)}
+            />
+            <p class={err.day ? 'field-error' : 'hint'} id="ri-day-hint">
+              {err.day ?? 'Day of the month. 29–31 fall on the last day of shorter months.'}
+            </p>
+          </FormRow>
+        )}
 
         <FormRow label="As">
           <SegmentedControl

@@ -15,7 +15,7 @@
 }
 .rec-day {
   flex: none;
-  width: 2.6rem;
+  width: 3.6rem;
   font-family: var(--font-hand);
   font-weight: 700;
   font-size: var(--fs-note);

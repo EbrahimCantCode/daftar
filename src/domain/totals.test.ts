@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Entry } from './types';
-import { breakdown, entriesInMonth, groupByDay, leftThisMonth, monthTotals } from './totals';
+import { breakdown, groupByDay, leftOf, outgoing, totalsOf } from './totals';
 
 let seq = 0;
 const e = (date: string, amountFils: number, description: string, type: Entry['type'] = 'spend'): Entry => ({
@@ -22,15 +22,12 @@ const sample = [
   e('2026-10-31', 99_999, 'Last month'),
 ];
 
-describe('monthTotals', () => {
-  const nov = entriesInMonth(sample, '2026-11');
+const nov = sample.filter((x) => x.date.startsWith('2026-11'));
 
-  it('selects only the month', () => {
-    expect(nov).toHaveLength(6);
-  });
-
+describe('totalsOf', () => {
   it('sums each type in integer fils', () => {
-    expect(monthTotals(nov)).toEqual({
+    expect(totalsOf(nov)).toEqual({
+      incomeFils: 0,
       fixedFils: 31_500,
       spentFils: 6_150,
       savedFils: 250_000,
@@ -38,26 +35,36 @@ describe('monthTotals', () => {
     });
   });
 
-  it('is zero for an empty month', () => {
-    expect(monthTotals([])).toEqual({ fixedFils: 0, spentFils: 0, savedFils: 0, totalOutFils: 0 });
+  it('counts income separately from spending', () => {
+    const t = totalsOf([...nov, e('2026-11-01', 850_000, 'Salary', 'income')]);
+    expect(t.incomeFils).toBe(850_000);
+    expect(t.spentFils).toBe(6_150);
+    expect(t.totalOutFils).toBe(287_650);
   });
 
-  it('computes what is left, negative when overspent', () => {
-    const totals = monthTotals(nov);
-    expect(leftThisMonth(undefined, totals)).toBeUndefined();
-    expect(leftThisMonth(800_000, totals)).toBe(512_350);
-    expect(leftThisMonth(200_000, totals)).toBe(-87_650);
+  it('is zero for an empty period', () => {
+    expect(totalsOf([])).toEqual({ incomeFils: 0, fixedFils: 0, spentFils: 0, savedFils: 0, totalOutFils: 0 });
+  });
+
+  it('computes what is left, negative when overspent, and nothing without income', () => {
+    expect(leftOf(totalsOf(nov))).toBeUndefined();
+    expect(leftOf(totalsOf([...nov, e('2026-11-01', 800_000, 'Salary', 'income')]))).toBe(512_350);
+    expect(leftOf(totalsOf([...nov, e('2026-11-01', 200_000, 'Salary', 'income')]))).toBe(-87_650);
   });
 
   it('stays exact where floats would drift', () => {
     const many = Array.from({ length: 1000 }, () => e('2026-11-01', 100, 'x'));
-    expect(monthTotals(many).spentFils).toBe(100_000);
+    expect(totalsOf(many).spentFils).toBe(100_000);
+  });
+
+  it('separates outgoing entries from income', () => {
+    expect(outgoing([...nov, e('2026-11-01', 1, 'Salary', 'income')])).toHaveLength(6);
   });
 });
 
 describe('groupByDay', () => {
   it('groups newest day first with day totals', () => {
-    const groups = groupByDay(entriesInMonth(sample, '2026-11'));
+    const groups = groupByDay(nov);
     expect(groups.map((g) => g.date)).toEqual(['2026-11-20', '2026-11-12', '2026-11-05', '2026-11-03', '2026-11-01']);
     const third = groups.find((g) => g.date === '2026-11-03')!;
     expect(third.totalFils).toBe(4_950);
@@ -67,7 +74,7 @@ describe('groupByDay', () => {
 
 describe('breakdown', () => {
   it('groups descriptions case-insensitively and trimmed', () => {
-    const rows = breakdown(entriesInMonth(sample, '2026-11'));
+    const rows = breakdown(nov);
     const karak = rows.find((r) => r.key === 'karak')!;
     expect(karak).toMatchObject({ totalFils: 2_400, count: 2 });
     expect(rows[0]?.label).toBe('Savings');

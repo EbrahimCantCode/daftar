@@ -1,33 +1,34 @@
 import type { Entry, EntryType } from './types';
-import { monthOf } from './dates';
 import { SpellingTally, descriptionKey } from './text';
 
-export interface MonthTotals {
+export interface Totals {
+  incomeFils: number;
   fixedFils: number;
   spentFils: number;
   savedFils: number;
+  /** Fixed + spent + saved. */
   totalOutFils: number;
 }
 
-export function entriesInMonth(entries: readonly Entry[], month: string): Entry[] {
-  return entries.filter((e) => monthOf(e.date) === month);
-}
-
-export function monthTotals(entries: readonly Entry[]): MonthTotals {
-  let fixedFils = 0;
-  let spentFils = 0;
-  let savedFils = 0;
+export function totalsOf(entries: readonly Entry[]): Totals {
+  const t = { incomeFils: 0, fixedFils: 0, spentFils: 0, savedFils: 0 };
   for (const e of entries) {
-    if (e.type === 'fixed') fixedFils += e.amountFils;
-    else if (e.type === 'savings') savedFils += e.amountFils;
-    else spentFils += e.amountFils;
+    if (e.type === 'income') t.incomeFils += e.amountFils;
+    else if (e.type === 'fixed') t.fixedFils += e.amountFils;
+    else if (e.type === 'savings') t.savedFils += e.amountFils;
+    else t.spentFils += e.amountFils;
   }
-  return { fixedFils, spentFils, savedFils, totalOutFils: fixedFils + spentFils + savedFils };
+  return { ...t, totalOutFils: t.fixedFils + t.spentFils + t.savedFils };
 }
 
-/** Income minus total out; undefined when no income is set. */
-export function leftThisMonth(incomeFils: number | undefined, totals: MonthTotals): number | undefined {
-  return incomeFils === undefined ? undefined : incomeFils - totals.totalOutFils;
+/** Income minus total out; undefined when no income was logged, since there's nothing to subtract from. */
+export function leftOf(totals: Totals): number | undefined {
+  return totals.incomeFils > 0 ? totals.incomeFils - totals.totalOutFils : undefined;
+}
+
+/** Entries that are money going out (everything except income). */
+export function outgoing(entries: readonly Entry[]): Entry[] {
+  return entries.filter((e) => e.type !== 'income');
 }
 
 export interface DayGroup {
@@ -48,7 +49,8 @@ export function groupByDay(entries: readonly Entry[]): DayGroup[] {
     .sort(([a], [b]) => (a < b ? 1 : a > b ? -1 : 0))
     .map(([date, list]) => {
       list.sort((a, b) => b.createdAt - a.createdAt);
-      return { date, entries: list, totalFils: list.reduce((sum, e) => sum + e.amountFils, 0) };
+      // The day total is money out; income on the day isn't added to it.
+      return { date, entries: list, totalFils: outgoing(list).reduce((sum, e) => sum + e.amountFils, 0) };
     });
 }
 

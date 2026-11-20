@@ -1,8 +1,10 @@
 /* ---- Sticky-note summary -------------------------------------------------- */
 
 .sticky {
+  --note-row: 1.75rem;
   position: relative;
-  height: calc(var(--line) * 4);
+  /* Whole ruled lines tall, so the page below stays on the rules; set per note. */
+  height: calc(var(--line) * var(--note-lines, 4));
   margin: calc(var(--line) * 0.5) 0 calc(var(--line) * 0.5) -0.35rem;
   max-width: 21rem;
   padding: 1.1rem 1.1rem 0.6rem;
@@ -14,9 +16,6 @@
     0 1px 1px var(--sticky-shadow),
     2px 10px 14px -6px var(--sticky-shadow);
   transform: rotate(-1.2deg);
-}
-.sticky.has-left {
-  height: calc(var(--line) * 5);
 }
 .sticky {
   display: flex;
@@ -44,8 +43,8 @@
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-4);
-  height: 2rem;
-  line-height: 2rem;
+  height: var(--note-row);
+  line-height: var(--note-row);
 }
 .sum-row dt {
   font-family: var(--font-hand);
@@ -80,11 +79,17 @@
   text-underline-offset: 5px;
 }
 .sticky-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
   font-size: var(--fs-sm);
   font-weight: 700;
   color: inherit;
+  text-decoration: underline;
   text-decoration-thickness: 1.5px;
   text-underline-offset: 3px;
+  cursor: pointer;
 }
 /* Typed labels on the note. */
 .sum-row dt {

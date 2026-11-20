@@ -1,0 +1,13 @@
+/* ---- Moving to pay cycles ------------------------------------------------ */
+
+.migration {
+  margin-top: var(--line);
+}
+.migration p {
+  margin-bottom: var(--space-3);
+  line-height: 1.5;
+  max-width: 34rem;
+}
+.migration .button-row {
+  margin-top: var(--space-4);
+}

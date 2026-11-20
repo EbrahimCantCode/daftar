@@ -2,7 +2,7 @@ import type { ComponentChildren } from 'preact';
 import { useState } from 'preact/hooks';
 import { MAX_IMPORT_BYTES, downloadBackup } from '../../../data/backup';
 import { parseImport, type ImportPreview } from '../../../domain/csv';
-import { dayLabel } from '../../../domain/dates';
+import { dayLabel, ordinal } from '../../../domain/dates';
 import { amountError, filsToPlain, formatFils, parseFils } from '../../../domain/money';
 import type { ImportMode, Theme } from '../../../domain/types';
 import { eraseEverything, importSnapshot, persisted, settings, snapshot, today, updateSettings } from '../../../state/store';
@@ -85,6 +85,59 @@ function AmountSetting({ id, label, hint, value, example, onSave, savedMessage }
           value={text}
           invalid={!!error}
           describedBy={`${id}-hint`}
+          onInput={setText}
+          onBlur={commit}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              void commit();
+            }
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+/** Expected payday: the day of the month the salary usually arrives. */
+function PaydaySetting() {
+  const [text, setText] = useState(String(settings.value.paydayDay));
+  const [error, setError] = useState<string | null>(null);
+  const commit = async () => {
+    const day = Number(text.trim());
+    if (!Number.isInteger(day) || day < 1 || day > 31) {
+      setError('A day from 1 to 31');
+      return;
+    }
+    setError(null);
+    if (day !== settings.value.paydayDay) {
+      await updateSettings({ paydayDay: day });
+      showToast(`Payday set to the ${ordinal(day)}`);
+    }
+  };
+  return (
+    <div class="setting">
+      <label class="setting-label" for="payday">
+        Expected payday
+      </label>
+      <p class="hint" id="payday-hint">
+        {error ? (
+          <span class="ink-red">{error}</span>
+        ) : (
+          'Day of the month your salary usually arrives. A cycle starts on the day you log your salary, up to 7 days early.'
+        )}
+      </p>
+      <div class="control day-control">
+        <TextInput
+          id="payday"
+          class="day-input"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          maxLength={2}
+          autoComplete="off"
+          value={text}
+          invalid={!!error}
+          describedBy="payday-hint"
           onInput={setText}
           onBlur={commit}
           onKeyDown={(e) => {
@@ -192,11 +245,12 @@ function ImportSection() {
                 {preview.hasSettings && (
                   <li>
                     Settings
-                    {preview.data.settings.monthlyIncomeFils !== undefined &&
-                      ` (income ${formatFils(preview.data.settings.monthlyIncomeFils)})`}
+                    {preview.data.settings.usualSalaryFils !== undefined &&
+                      ` (usual salary ${formatFils(preview.data.settings.usualSalaryFils)})`}
                   </li>
                 )}
               </ul>
+              {preview.legacy && <p class="hint">Written by the earlier, month-based version: it will be moved to pay cycles.</p>}
               <SegmentedControl
                 label="Import mode"
                 value={mode}
@@ -213,7 +267,7 @@ function ImportSection() {
               </p>
               {preview.hasSettings && (
                 <Checkbox checked={withSettings} onChange={setWithSettings}>
-                  Also import settings (income, theme)
+                  Also import settings (payday, salary, theme)
                 </Checkbox>
               )}
               <div class="button-row">
@@ -274,15 +328,16 @@ export function SettingsPage() {
       <TopBar title="Settings" back />
 
       {/* Keyed on the stored value so an import or erase remounts the field with fresh text. */}
+      <PaydaySetting key={`payday-${settings.value.paydayDay}`} />
       <AmountSetting
-        key={`income-${settings.value.monthlyIncomeFils}`}
-        id="income"
-        label="Monthly income"
-        hint="Used for “Left this month”. Leave empty to hide it."
+        key={`salary-${settings.value.usualSalaryFils}`}
+        id="usual-salary"
+        label="Usual salary"
+        hint="Fills in “Salary received”. You can change the amount each time."
         example="850 or 850.500"
-        value={settings.value.monthlyIncomeFils}
-        onSave={(fils) => updateSettings({ monthlyIncomeFils: fils })}
-        savedMessage={(fils) => (fils === undefined ? 'Income cleared' : `Income set to ${formatFils(fils)}`)}
+        value={settings.value.usualSalaryFils}
+        onSave={(fils) => updateSettings({ usualSalaryFils: fils })}
+        savedMessage={(fils) => (fils === undefined ? 'Usual salary cleared' : `Usual salary set to ${formatFils(fils)}`)}
       />
       <AmountSetting
         key={`goal-${settings.value.dailyGoalFils}`}
