@@ -2,8 +2,9 @@
 import { defineConfig } from 'vite';
 import preact from '@preact/preset-vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { BRAND } from './src/domain/brand';
 
-const PAPER = '#fbf6e9';
+const PAPER = BRAND.paper;
 
 export default defineConfig({
   // Relative base so the build works at a domain root or a GitHub Pages subpath.

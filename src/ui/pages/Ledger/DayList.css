@@ -1,0 +1,22 @@
+/* ---- Entries, grouped by day --------------------------------------------- */
+
+.day-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  height: var(--line);
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: var(--fs-body-lg);
+  line-height: var(--line);
+  color: var(--ink);
+}
+.day-head .amount {
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
+  padding-right: var(--space-1);
+}
+.day + .day {
+  margin-top: 0;
+}

@@ -1,4 +1,5 @@
 import { effect } from '@preact/signals';
+import { BRAND } from './domain/brand';
 import { settings } from './state/store';
 
 const media = window.matchMedia('(prefers-color-scheme: dark)');
@@ -14,7 +15,7 @@ function applyTheme() {
   document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((m) => m.remove());
   const meta = document.createElement('meta');
   meta.name = 'theme-color';
-  meta.content = paper || '#fbf6e9';
+  meta.content = paper || BRAND.paper;
   document.head.append(meta);
 }
 

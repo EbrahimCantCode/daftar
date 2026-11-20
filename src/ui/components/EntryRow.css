@@ -1,0 +1,44 @@
+.entry {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  width: 100%;
+  height: var(--line);
+  padding: 0 var(--space-1) 0 var(--space-2);
+  border: 0;
+  background: transparent;
+  text-align: left;
+  line-height: var(--line);
+  cursor: pointer;
+  color: var(--entry-ink);
+}
+.entry:hover {
+  background: linear-gradient(to bottom, transparent 20%, var(--highlight-pencil) 20%, var(--highlight-pencil) 80%, transparent 80%);
+}
+.entry:focus-visible {
+  outline-offset: -3px;
+}
+.entry-desc {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-body);
+}
+.entry-tag {
+  flex: none;
+  align-self: center;
+  display: inline-grid;
+  place-items: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  opacity: 0.8;
+}
+.entry-tag svg {
+  width: 100%;
+  height: 100%;
+}
+.entry .amount {
+  flex: none;
+}

@@ -1,5 +1,5 @@
 import { signal } from '@preact/signals';
-import { isValidMonth } from '../lib/dates';
+import { isValidMonth } from '../domain/dates';
 
 export type Route = 'ledger' | 'monthly' | 'settings' | 'report';
 

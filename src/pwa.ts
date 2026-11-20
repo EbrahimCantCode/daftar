@@ -1,5 +1,5 @@
 import { registerSW } from 'virtual:pwa-register';
-import { showToast } from './components/Toast';
+import { showToast } from './ui/components/Toast';
 
 /** Registers the service worker and offers a reload when a new version has been cached. */
 export function initPwa() {

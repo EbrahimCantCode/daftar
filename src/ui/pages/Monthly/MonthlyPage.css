@@ -1,0 +1,61 @@
+/* ---- Monthly page -------------------------------------------------------- */
+
+.page-intro {
+  color: var(--ink-soft);
+}
+
+.rec-row {
+  display: flex;
+  align-items: center;
+  height: var(--line);
+}
+.rec-row .entry {
+  flex: 1;
+  min-width: 0;
+}
+.rec-day {
+  flex: none;
+  width: 2.6rem;
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: var(--fs-note);
+  color: var(--ink-soft);
+}
+.rec-row.is-paused .entry-desc,
+.rec-row.is-paused .amount {
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+.paused-tag {
+  flex: none;
+  font-family: var(--font-hand);
+  font-size: var(--fs-xs);
+  color: var(--ink-red);
+  transform: rotate(-4deg);
+}
+
+.rec-totals {
+  margin: var(--line) 0 0;
+  padding: 0 var(--space-1) 0 var(--space-2);
+}
+.rec-totals div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  height: var(--line);
+}
+.rec-totals dt {
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: var(--fs-body);
+}
+.rec-totals dd {
+  margin: 0;
+}
+
+.chips.wrap {
+  flex-wrap: wrap;
+  overflow: visible;
+  padding-top: calc((var(--line) - 2.25rem) / 2);
+  gap: calc(var(--line) - 2.25rem) var(--space-2);
+}

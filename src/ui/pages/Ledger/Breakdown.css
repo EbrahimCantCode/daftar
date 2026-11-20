@@ -1,0 +1,42 @@
+/* ---- Breakdown ----------------------------------------------------------- */
+
+.bd-list {
+  margin-top: 0;
+}
+.bd-row {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  height: var(--line);
+  padding: 0 var(--space-1) 0 var(--space-2);
+  line-height: var(--line);
+}
+.bd-bar {
+  position: absolute;
+  left: 0.25rem;
+  top: 22%;
+  height: 50%;
+  border-radius: var(--radius-highlight);
+  background: var(--highlight-blue);
+  transform: skewX(-8deg);
+  pointer-events: none;
+}
+.bd-label {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bd-pct {
+  position: relative;
+  flex: none;
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
+}
+.bd-row .amount {
+  position: relative;
+  flex: none;
+}

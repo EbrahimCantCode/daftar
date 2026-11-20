@@ -54,15 +54,24 @@ When a new version is deployed, the app shows "A new version of Daftar is ready"
 
 ## How it works
 
-| Area | Where |
+### Code structure
+
+The code is split into layers. [`CLAUDE.md`](CLAUDE.md) has the full conventions.
+
+| Layer | What it holds |
 | --- | --- |
-| Money parsing/formatting (integer fils only) | [`src/lib/money.ts`](src/lib/money.ts) |
-| Recurring planner (idempotent, backfill, clamping) | [`src/lib/recurring.ts`](src/lib/recurring.ts) |
-| Totals, day groups, breakdown | [`src/lib/totals.ts`](src/lib/totals.ts) |
-| CSV export/import + validation | [`src/lib/csv.ts`](src/lib/csv.ts) |
-| IndexedDB (via `idb`) | [`src/db/db.ts`](src/db/db.ts) |
-| App state (Preact signals) | [`src/state/store.ts`](src/state/store.ts) |
-| Notebook styles | [`src/styles/`](src/styles) |
+| [`src/domain/`](src/domain) | Pure, unit-tested logic: money (integer fils), dates, entry types, totals, recurring posting, goal streaks, reports, CSV |
+| [`src/data/`](src/data) | Everything that touches the device: IndexedDB repositories, CSV backup, file download/copy, preferences, clock |
+| [`src/state/`](src/state) | Preact signals and actions (the only caller of the database), plus the hash router |
+| [`src/ui/components/`](src/ui/components) | Shared components (Button, AmountInput, SegmentedControl, BottomSheet, EntryRow, StickyNote…), each with its CSS next to it |
+| [`src/ui/pages/`](src/ui/pages) | One folder per screen, built only from components |
+| [`src/ui/tokens.css`](src/ui/tokens.css) | Every colour, font size, spacing step, radius, shadow and timing |
+
+Rules in short:
+- use tokens, never raw values;
+- pages never touch the database;
+- reuse a component before creating a new one;
+- domain code stays pure and tested.
 
 **Money.** Every amount is stored as an integer number of fils (1 BD = 1000 fils). Input like `3`, `3.5`, `3.250`, `.5` or `1,250.000` is parsed digit by digit, so no floating-point value ever touches money. Arabic-Indic digits work too.
 

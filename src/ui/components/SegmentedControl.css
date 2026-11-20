@@ -1,0 +1,26 @@
+/* Segmented toggle (Spend / Savings, themes, import mode). */
+.toggle {
+  display: inline-flex;
+  padding: 3px;
+  border: 2px solid var(--ink);
+  border-radius: var(--wobble);
+  background: var(--card);
+  gap: 2px;
+}
+.toggle button {
+  min-height: 2.25rem;
+  min-width: 2.75rem;
+  padding: 0 0.85rem;
+  border: 0;
+  border-radius: var(--wobble-alt);
+  background: transparent;
+  color: var(--ink-soft);
+  font-weight: 700;
+  font-size: var(--fs-note);
+  cursor: pointer;
+}
+.toggle button[aria-pressed='true'] {
+  /* --seg-ink is set per option from the entry-type registry. */
+  background: var(--seg-ink, var(--ink));
+  color: var(--paper);
+}

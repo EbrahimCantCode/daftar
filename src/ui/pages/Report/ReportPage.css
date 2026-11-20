@@ -1,0 +1,48 @@
+/* ---- Report screen ------------------------------------------------------- */
+
+.report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: calc(var(--line) * 0.5);
+}
+.report-toggle {
+  margin-top: var(--space-2);
+}
+
+/* A page torn out of the notebook: ruled, with a ragged top edge. */
+.torn-page {
+  --tear: 10px;
+  position: relative;
+  margin: var(--space-5) calc(-1 * var(--space-1)) calc(var(--line) * 2) calc(-1 * var(--space-2));
+  padding: calc(var(--tear) + var(--space-5)) var(--space-4) var(--space-6) var(--space-5);
+  background-color: var(--card);
+  background-image:
+    linear-gradient(to right, transparent 0.6rem, var(--margin-line) 0.6rem, var(--margin-line) calc(0.6rem + 2px), transparent calc(0.6rem + 2px)),
+    repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.5rem - 1px), var(--rule) calc(1.5rem - 1px), var(--rule) 1.5rem);
+  background-position:
+    0 0,
+    0 calc(var(--tear) + 1.25rem - 0.3rem);
+  box-shadow: var(--shadow);
+  transform: rotate(-0.6deg);
+  /* Zig-zag tear along the top edge. */
+  -webkit-mask:
+    conic-gradient(from 135deg at top, var(--mask-clear), var(--mask-opaque) 1deg 89deg, var(--mask-clear) 90deg) top / calc(var(--tear) * 2) var(--tear) repeat-x,
+    linear-gradient(var(--mask-opaque) 0 0) 0 var(--tear) / 100% calc(100% - var(--tear)) no-repeat;
+  mask:
+    conic-gradient(from 135deg at top, var(--mask-clear), var(--mask-opaque) 1deg 89deg, var(--mask-clear) 90deg) top / calc(var(--tear) * 2) var(--tear) repeat-x,
+    linear-gradient(var(--mask-opaque) 0 0) 0 var(--tear) / 100% calc(100% - var(--tear)) no-repeat;
+}
+.report-text {
+  margin: 0;
+  font-family: var(--font-text);
+  font-size: var(--fs-2xs);
+  line-height: 1.5rem;
+  white-space: pre;
+  overflow-x: auto;
+  color: var(--ink);
+}
+.report-prose {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

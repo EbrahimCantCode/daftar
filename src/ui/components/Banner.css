@@ -1,0 +1,29 @@
+/* ---- Banner: a small dismissible note ------------------------------------ */
+
+.banner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: calc(var(--line) * 0.25) 0;
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3);
+  border: 2px dashed var(--ink-soft);
+  border-radius: var(--wobble-alt);
+  background: var(--card);
+  line-height: 1.4;
+}
+.banner > svg {
+  flex: none;
+  width: 1.4rem;
+  height: 1.4rem;
+  color: var(--ink-blue);
+}
+.banner p {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-note);
+}
+.banner a {
+  font-weight: 700;
+  color: var(--ink-blue);
+}

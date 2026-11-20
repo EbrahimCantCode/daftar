@@ -1,0 +1,90 @@
+/* ---- Buttons ------------------------------------------------------------- */
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-round);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+.icon-btn:hover {
+  background: var(--highlight-pencil);
+}
+.icon-btn svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.ink-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  padding: 0 1.1rem;
+  border: 2px solid var(--ink);
+  border-radius: var(--wobble);
+  background: var(--card);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-weight: 700;
+  font-size: var(--fs-body);
+  line-height: 1.2;
+  cursor: pointer;
+  transition: transform var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
+  box-shadow: var(--press-offset) var(--ink);
+  -webkit-user-select: none;
+  user-select: none;
+}
+.ink-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: var(--press-offset-lifted) var(--ink);
+}
+.ink-btn:active {
+  transform: translate(2px, 3px);
+  box-shadow: var(--press-offset-pressed) var(--ink);
+}
+.ink-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: var(--press-offset) var(--ink);
+}
+.ink-btn svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+.ink-btn.primary {
+  background: var(--ink-blue);
+  border-color: var(--ink-blue);
+  color: var(--paper);
+  box-shadow: var(--press-offset) var(--ink);
+}
+.ink-btn.danger {
+  border-color: var(--ink-red);
+  color: var(--ink-red);
+  box-shadow: var(--press-offset) var(--ink-red);
+}
+.ink-btn.danger.solid {
+  background: var(--ink-red);
+  color: var(--paper);
+}
+.ink-btn.quiet {
+  border-color: transparent;
+  box-shadow: none;
+  background: transparent;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+.ink-btn.quiet:hover {
+  transform: none;
+  background: var(--highlight-pencil);
+}

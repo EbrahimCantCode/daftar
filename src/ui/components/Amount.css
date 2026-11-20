@@ -1,0 +1,16 @@
+/* ---- Amounts: typewriter digits are fixed-width, so columns line up. ---- */
+
+.amount {
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: var(--fs-entry);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: right;
+}
+.amount .unit {
+  font-size: var(--fs-unit);
+  font-weight: 400;
+  margin-left: 0.35em;
+  opacity: 0.8;
+}

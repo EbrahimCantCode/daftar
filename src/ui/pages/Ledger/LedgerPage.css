@@ -1,0 +1,28 @@
+/* ---- Page turn ----------------------------------------------------------- */
+
+.month-viewport {
+  perspective: 1400px;
+  overflow-x: clip;
+}
+.month-page {
+  transform-origin: left center;
+  touch-action: pan-y;
+}
+.month-page.turn-next {
+  animation: turn-next var(--dur-turn) var(--ease-turn);
+}
+.month-page.turn-prev {
+  animation: turn-prev var(--dur-turn) var(--ease-turn);
+}
+@keyframes turn-next {
+  from {
+    opacity: 0;
+    transform: translateX(18%) rotateY(-14deg);
+  }
+}
+@keyframes turn-prev {
+  from {
+    opacity: 0;
+    transform: translateX(-14%) rotateY(10deg);
+  }
+}

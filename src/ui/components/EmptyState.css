@@ -1,0 +1,21 @@
+/* ---- Empty states & notes ------------------------------------------------ */
+
+.empty {
+  padding-top: var(--line);
+  color: var(--ink-soft);
+}
+.empty .hand {
+  font-size: var(--fs-lg);
+  color: var(--ink-pencil);
+}
+
+.boot {
+  display: grid;
+  place-items: center;
+  min-height: 60dvh;
+  font-family: var(--font-hand);
+  font-size: var(--fs-xl);
+  color: var(--ink-soft);
+  text-align: center;
+  line-height: 1.3;
+}

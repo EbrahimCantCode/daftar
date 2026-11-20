@@ -1,0 +1,176 @@
+/* Colour and rhythm tokens. Ink colours are chosen for at least 4.5:1 contrast on their paper. */
+
+:root {
+  color-scheme: light;
+  --paper: #fbf6e9;
+  --paper-deep: #f3ead3;
+  --desk: #e7dcc2;
+  --rule: rgba(66, 120, 196, 0.26);
+  --margin-line: rgba(214, 69, 65, 0.55);
+  --hole: #e2d6b8;
+  --hole-shadow: rgba(80, 60, 20, 0.25);
+
+  --ink: #1d2740;
+  --ink-soft: #545c6c;
+  --ink-blue: #1c4ea1;
+  --ink-green: #1b6b37;
+  --ink-pencil: #5d6168;
+  --ink-red: #b3261e;
+
+  --sticky: #fff1a1;
+  --sticky-ink: #2b2a1e;
+  --sticky-shadow: rgba(90, 70, 10, 0.22);
+  --tape: rgba(214, 199, 160, 0.72);
+  --highlight-blue: rgba(28, 78, 161, 0.16);
+  --highlight-green: rgba(27, 107, 55, 0.18);
+  --highlight-pencil: rgba(93, 97, 104, 0.18);
+
+  --card: #fffdf6;
+  --overlay: rgba(40, 30, 10, 0.35);
+  --focus: #1c4ea1;
+  --shadow: 0 1px 2px rgba(60, 40, 0, 0.12), 0 12px 32px rgba(60, 40, 0, 0.14);
+
+  --line: 2.75rem; /* one ruled line (44px, so every row is a comfortable tap target); vertical sizes are multiples of it */
+  --margin-x: 3.25rem; /* where the red margin line sits */
+  --gutter: 1rem;
+  --rule-shift: -0.7rem; /* lifts the rules so text sits on them rather than floating above */
+
+  --font-hand: 'Courier Prime', 'Courier New', monospace;
+  --font-text: 'Courier Prime', 'Courier New', monospace;
+
+  --wobble: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  --wobble-alt: 15px 225px 15px 255px / 255px 15px 225px 15px;
+
+  /* Ink per entry type. Components read these through domain/entryTypes.ts, never directly by type name. */
+  --ink-spend: var(--ink-blue);
+  --ink-fixed: var(--ink-pencil);
+  --ink-savings: var(--ink-green);
+
+  /* Accent colours that don't change with the theme. */
+  --tab-tint-prev: #9fc2e8;
+  --tab-tint-next: #f0b8b0;
+  --sticky-sheen: rgba(255, 255, 255, 0.18);
+  --flame-ink: #c96f1c;
+  --flame-fill: rgba(242, 179, 61, 0.55);
+  --mask-opaque: #000; /* alpha masks: opaque keeps, clear cuts away */
+  --mask-clear: #0000;
+
+  /* Type scale (Courier Prime). */
+  --fs-unit: 0.8em;
+  --fs-2xs: 0.8rem;
+  --fs-xs: 0.85rem;
+  --fs-sm: 0.9rem;
+  --fs-note: 0.95rem;
+  --fs-body: 1rem;
+  --fs-body-lg: 1.05rem;
+  --fs-entry: 1.0625rem;
+  --fs-md: 1.1rem;
+  --fs-lg: 1.15rem;
+  --fs-lg-plus: 1.2rem;
+  --fs-xl: 1.25rem;
+  --fs-xl-plus: 1.3rem;
+  --fs-2xl: 1.35rem;
+  --fs-brand: 1.5rem;
+  --fs-title: 1.9rem;
+
+  /* Spacing scale. Vertical rhythm uses multiples of --line instead. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+
+  /* Radii. */
+  --radius-round: 50%;
+  --radius-focus: 6px;
+  --radius-tape: 2px;
+  --radius-sheet: 18px;
+  --radius-sheet-top: 18px 18px 0 0;
+  --radius-page: 4px 12px 12px 4px;
+  --radius-tab: 10px 14px 0 0 / 12px 10px 0 0;
+  --radius-sticky: 2px 2px 3px 26px / 2px 2px 3px 10px;
+  --radius-highlight: 3px 10px 4px 12px / 8px 4px 10px 3px;
+  --radius-blob: 58% 42% 55% 45% / 45% 55% 45% 55%;
+
+  /* Shadows: the ink offset under hand-drawn buttons, and soft lifts. */
+  --press-offset: 2px 3px 0;
+  --press-offset-lifted: 3px 4px 0;
+  --press-offset-pressed: 0 0 0;
+  --shadow-sheet: 0 -6px 30px rgba(0, 0, 0, 0.2);
+  --focus-ring: 0 0 0 3px var(--highlight-blue);
+
+  /* Motion. All of it is switched off under prefers-reduced-motion in base.css. */
+  --dur-fast: 0.12s;
+  --dur-quick: 0.15s;
+  --dur-base: 0.2s;
+  --dur-sheet: 0.22s;
+  --dur-turn: 0.38s;
+  --dur-slow: 0.4s;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.3, 1);
+  --ease-turn: cubic-bezier(0.2, 0.7, 0.25, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --paper: #1d2027;
+    --paper-deep: #171a20;
+    --desk: #101216;
+    --rule: rgba(130, 165, 230, 0.15);
+    --margin-line: rgba(240, 110, 100, 0.42);
+    --hole: #0c0e11;
+    --hole-shadow: rgba(0, 0, 0, 0.5);
+
+    --ink: #ebe6d8;
+    --ink-soft: #aab0bb;
+    --ink-blue: #93b6ff;
+    --ink-green: #7dd598;
+    --ink-pencil: #b0b5bd;
+    --ink-red: #ff8f85;
+
+    --sticky: #4a4322;
+    --sticky-ink: #f5eecb;
+    --sticky-shadow: rgba(0, 0, 0, 0.45);
+    --tape: rgba(150, 140, 110, 0.45);
+    --highlight-blue: rgba(147, 182, 255, 0.2);
+    --highlight-green: rgba(125, 213, 152, 0.2);
+    --highlight-pencil: rgba(176, 181, 189, 0.2);
+
+    --card: #252932;
+    --overlay: rgba(0, 0, 0, 0.55);
+    --focus: #93b6ff;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.5);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --paper: #1d2027;
+  --paper-deep: #171a20;
+  --desk: #101216;
+  --rule: rgba(130, 165, 230, 0.15);
+  --margin-line: rgba(240, 110, 100, 0.42);
+  --hole: #0c0e11;
+  --hole-shadow: rgba(0, 0, 0, 0.5);
+
+  --ink: #ebe6d8;
+  --ink-soft: #aab0bb;
+  --ink-blue: #93b6ff;
+  --ink-green: #7dd598;
+  --ink-pencil: #b0b5bd;
+  --ink-red: #ff8f85;
+
+  --sticky: #4a4322;
+  --sticky-ink: #f5eecb;
+  --sticky-shadow: rgba(0, 0, 0, 0.45);
+  --tape: rgba(150, 140, 110, 0.45);
+  --highlight-blue: rgba(147, 182, 255, 0.2);
+  --highlight-green: rgba(125, 213, 152, 0.2);
+  --highlight-pencil: rgba(176, 181, 189, 0.2);
+
+  --card: #252932;
+  --overlay: rgba(0, 0, 0, 0.55);
+  --focus: #93b6ff;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.5);
+}

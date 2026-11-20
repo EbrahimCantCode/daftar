@@ -1,13 +1,13 @@
 import { computed, signal } from '@preact/signals';
-import * as db from '../db/db';
-import { now } from '../lib/clock';
-import { currentMonth, todayISO } from '../lib/dates';
-import { goalHeat, goalStreak, spendOnDay } from '../lib/goal';
-import { newId } from '../lib/id';
-import { resumeItem } from '../lib/recurring';
-import { buildSuggestions } from '../lib/suggest';
-import { cleanDescription } from '../lib/text';
-import { DEFAULT_SETTINGS, type DataSnapshot, type Entry, type RecurringItem, type Settings } from '../types';
+import * as db from '../data/db';
+import { now } from '../data/clock';
+import { currentMonth, todayISO } from '../domain/dates';
+import { goalHeat, goalStreak, spendOnDay } from '../domain/goal';
+import { newId } from '../data/id';
+import { resumeItem } from '../domain/recurring';
+import { buildSuggestions } from '../domain/suggest';
+import { cleanDescription } from '../domain/text';
+import { DEFAULT_SETTINGS, type DataSnapshot, type Entry, type ImportMode, type RecurringItem, type Settings } from '../domain/types';
 
 export const entries = signal<Entry[]>([]);
 export const recurring = signal<RecurringItem[]>([]);
@@ -194,7 +194,7 @@ export function snapshot(): DataSnapshot {
   return { entries: entries.value, recurring: recurring.value, settings: settings.value };
 }
 
-export async function importSnapshot(data: DataSnapshot, mode: db.ImportMode, includeSettings: boolean): Promise<void> {
+export async function importSnapshot(data: DataSnapshot, mode: ImportMode, includeSettings: boolean): Promise<void> {
   await db.importData(getDb(), data, mode, includeSettings);
   await db.runRecurring(getDb(), currentMonth(now()));
   await reload();

@@ -1,12 +1,7 @@
 import '@fontsource/courier-prime/latin-400.css';
 import '@fontsource/courier-prime/latin-700.css';
 import '@fontsource/courier-prime/latin-400-italic.css';
-import './styles/tokens.css';
-import './styles/base.css';
-import './styles/components.css';
-import './styles/ledger.css';
-import './styles/pages.css';
-import './styles/report.css';
+import './ui/styles.css';
 
 import { render } from 'preact';
 import { App } from './app';
