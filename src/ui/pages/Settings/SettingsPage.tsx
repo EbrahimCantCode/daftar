@@ -23,11 +23,11 @@ const THEMES: { value: Theme; label: string }[] = [
 const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
 
 /** A titled block on the settings page. */
-function Setting({ title, titleId, titleTag = 'h3', titleClass, class: cls, children }: {
+function Setting({ title, titleId, titleTag = 'h2', titleClass, class: cls, children }: {
   title: ComponentChildren;
   titleId?: string;
   titleClass?: string;
-  titleTag?: 'h3' | 'span' | 'label';
+  titleTag?: 'h2' | 'span' | 'label';
   class?: string;
   children: ComponentChildren;
 }) {
@@ -206,9 +206,9 @@ function ImportSection() {
 
       {preview && (
         <section class="import-preview" aria-labelledby="import-title" aria-live="polite">
-          <h4 id="import-title" class="hand">
+          <h3 id="import-title" class="hand">
             {fileName}
-          </h4>
+          </h3>
           {preview.errors.length > 0 ? (
             <>
               <p class="ink-red">

@@ -7,13 +7,14 @@ Daftar is an offline-first personal spending ledger (BHD), a Preact + signals PW
 ```
 src/
   domain/          Pure logic: no DOM, no IndexedDB, no localStorage, no Date.now() calls hidden inside.
-                   money, dates, text, types, entryTypes, totals, recurring, goal, suggest,
-                   report, csv, brand. Every module has a *.test.ts next to it.
+                   money, dates, text, types, entryTypes, cycles, totals, recurring, migrate,
+                   goal, suggest, slices, insights, markdown, report, yearReport, csv, brand.
+                   Every module has a *.test.ts next to it.
   data/            Everything that touches the device: db.ts (IndexedDB schema + repositories),
                    backup.ts (CSV export), files.ts (download/copy), prefs.ts (localStorage),
                    clock.ts (today, with the dev-only ?today= override), id.ts.
   state/           Signals and actions. store.ts holds entries/recurring/settings and calls data/;
-                   router.ts parses the hash.
+                   selection.ts is the cycle every tab is looking at; router.ts parses the hash.
   ui/
     tokens.css     The only place for colours, fonts, font sizes, spacing, radii, shadows, timings.
     base.css       Element defaults, the notebook page, utilities (.visually-hidden, .ink-red…).
@@ -27,11 +28,13 @@ src/
 
 - **Use tokens, never raw values.** Colours, font sizes (`--fs-*`), spacing (`--space-*`, or multiples of `--line` for vertical rhythm), radii (`--radius-*`), shadows and durations (`--dur-*`) all come from `ui/tokens.css`. If a value you need isn't there, add a token. A few sub-scale optical nudges (e.g. `0.35rem`) predate the scale. Don't add new ones.
 - **Pages never touch the database.** Pages and components import from `state/` (signals and actions), `domain/` (pure helpers) and `data/files`/`data/prefs`/`data/backup`. They never import `data/db`. Only `state/store.ts` calls `data/db`.
-- **Reuse a component before creating one.** Check `ui/components/` first: Button, FileButton, IconButton, TextInput, AmountInput, FieldError, SegmentedControl, Checkbox, Chips/Chip, FormRow/FormActions/Hint, BottomSheet, Toast, Banner, StickyNote, EntryRow, HighlightBar, EmptyState, Fab, TopBar, Amount, Icon. Never hand-write `class="ink-btn"`, `class="toggle"`, `class="field-input"` and so on in a page.
+- **Reuse a component before creating one.** Check `ui/components/` first: Button, FileButton, IconButton, TextInput, AmountInput, FieldError, SegmentedControl, Checkbox, Chips/Chip, FormRow/FormActions/Hint, BottomSheet, Toast, Banner, StickyNote, EntryRow, HighlightBar, EmptyState, Fab, TopBar, TabBar, CycleSelector, LinkRow, ReportView, StatCard/StatGrid, ChartContainer, Amount, Icon, and the chart pieces in `components/charts/` (sketch helpers, Donut, Bars, Lines, Heatmap). Never hand-write `class="ink-btn"`, `class="toggle"`, `class="field-input"` and so on in a page.
 - **Single sources of truth.**
   - Entry types (label, ink token, highlight, icon) are defined only in `domain/entryTypes.ts`. Colour a row with `inkVar(type)`, never with a CSS class per type.
   - Money is formatted only by `formatFils` / `filsToPlain` and parsed only by `parseFils` (`domain/money.ts`). Amounts are integer fils, never floats.
   - "Today" comes from the `today` signal in `state/store.ts`. Don't call `new Date()` in UI code.
+  - Periods are pay cycles (`domain/cycles.ts`), never calendar months: use `cycleFor`, `entriesInCycle` and the shared `viewCycle` selection.
+  - Charts go inside `ChartContainer` (sizing, empty state, caption, screen-reader table) and draw marks with the Rough.js helpers in `components/charts/sketch.tsx`, coloured with tokens (`--chart-*`, or `inkVar(type)`).
   - Colours that CSS can't reach (manifest, favicon) live in `domain/brand.ts`, mirroring the tokens.
 - **Domain code is pure and tested.** Pass `today`, entries and settings in as arguments. Add tests for new domain functions in the same folder.
 

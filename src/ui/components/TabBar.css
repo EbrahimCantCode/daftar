@@ -29,7 +29,8 @@
   border-top: 0;
   border-radius: var(--radius-tab-bottom);
   background: var(--paper-deep);
-  color: var(--ink-soft);
+  /* Full ink: soft grey on the tinted tabs falls below 4.5:1 at night. */
+  color: var(--ink);
   font-size: var(--fs-2xs);
   font-weight: 700;
   line-height: 1.1;
