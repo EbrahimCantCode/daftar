@@ -47,3 +47,76 @@
   border: 2px solid currentColor;
   border-radius: var(--radius-highlight);
 }
+
+/* ---- Chart pieces shared by Bars, Lines and Heatmap ----------------------- */
+
+.chart-grid {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+.chart-zero {
+  stroke: var(--ink-soft);
+  stroke-width: 1.5;
+}
+.chart-axis {
+  font-size: var(--fs-axis);
+}
+.chart-selected {
+  fill: var(--highlight-pencil);
+}
+.chart-cursor {
+  stroke: var(--ink-soft);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 4;
+}
+.heat-empty {
+  fill: none;
+  stroke: var(--rule);
+  stroke-width: 1.5;
+  rx: var(--radius-cell);
+}
+.heat-future {
+  opacity: 0.45;
+}
+.heat-day {
+  font-size: var(--fs-axis-sm);
+}
+.heat-day.on-dark {
+  fill: var(--paper);
+}
+.heat-selected {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+  rx: var(--radius-cell);
+}
+.chart-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  font-size: var(--fs-xs);
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+.chart-key span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.chart-key i {
+  display: inline-block;
+  width: 1.2rem;
+  border-top: 3px solid var(--key-ink);
+}
+.chart-key i.dash {
+  border-top-style: dashed;
+}
+.chart-key i.dot {
+  border-top-style: dotted;
+}
+.heat-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}

@@ -41,25 +41,36 @@ export function ChartContainer({ title, summary, empty, table, children, note }:
             {width > 0 && children(width)}
           </div>
           {note && <p class="chart-note">{note}</p>}
-          <table class="visually-hidden">
-            <caption>{title}</caption>
-            <thead>
-              <tr>
-                {table.head.map((h) => (
-                  <th key={h} scope="col">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {table.rows.map((r, i) => (
-                <tr key={i}>
-                  {r.map((c, j) => (j === 0 ? <th key={j} scope="row">{c}</th> : <td key={j}>{c}</td>))}
+          {/* Tables ignore the 1px box that hides content, so the wrapper is what's hidden. */}
+          <div class="visually-hidden">
+            <table>
+              <caption>{title}</caption>
+              <thead>
+                <tr>
+                  {table.head.map((h) => (
+                    <th key={h} scope="col">
+                      {h}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {table.rows.map((r, i) => (
+                  <tr key={i}>
+                    {r.map((c, j) =>
+                      j === 0 ? (
+                        <th key={j} scope="row">
+                          {c}
+                        </th>
+                      ) : (
+                        <td key={j}>{c}</td>
+                      ),
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </figure>

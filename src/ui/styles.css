@@ -16,6 +16,7 @@
 @import 'components/TabBar.css';
 @import 'components/LinkRow.css';
 @import 'components/ChartContainer.css';
+@import 'components/StatCard.css';
 @import 'pages/Ledger/LedgerPage.css';
 @import 'components/StickyNote.css';
 @import 'pages/Ledger/DayList.css';

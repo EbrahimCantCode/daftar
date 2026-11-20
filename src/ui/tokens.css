@@ -90,6 +90,9 @@
   --fs-2xl: 1.35rem;
   --fs-brand: 1.5rem;
   --fs-title: 1.9rem;
+  /* Chart axis labels. */
+  --fs-axis: 0.6875rem;
+  --fs-axis-sm: 0.625rem;
 
   /* Spacing scale. Vertical rhythm uses multiples of --line instead. */
   --space-1: 0.25rem;
@@ -113,6 +116,7 @@
   --radius-tab-bottom: 0 0 14px 10px / 0 0 12px 10px;
   --radius-sticky: 2px 2px 3px 26px / 2px 2px 3px 10px;
   --radius-highlight: 3px 10px 4px 12px / 8px 4px 10px 3px;
+  --radius-cell: 3px;
   --radius-blob: 58% 42% 55% 45% / 45% 55% 45% 55%;
 
   /* Shadows: the ink offset under hand-drawn buttons, and soft lifts. */

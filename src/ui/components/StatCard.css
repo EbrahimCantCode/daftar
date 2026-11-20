@@ -1,0 +1,45 @@
+/* ---- Stat cards (small sticky notes) -------------------------------------- */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+  gap: var(--space-4) var(--space-3);
+  margin-top: var(--space-4);
+}
+.stat-card {
+  position: relative;
+  min-height: 6.5rem;
+  padding: var(--space-3);
+  background: var(--sticky);
+  color: var(--sticky-ink);
+  border-radius: var(--radius-sticky);
+  box-shadow:
+    0 1px 1px var(--sticky-shadow),
+    2px 8px 12px -6px var(--sticky-shadow);
+  line-height: 1.3;
+}
+.stat-card:nth-child(odd) {
+  transform: rotate(-1deg);
+}
+.stat-card:nth-child(even) {
+  transform: rotate(0.8deg);
+}
+.stat-label {
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.stat-value {
+  margin-top: var(--space-1);
+  font-size: var(--fs-xl);
+  font-weight: 700;
+}
+.stat-value .amount {
+  font-size: inherit;
+}
+.stat-sub {
+  margin-top: var(--space-1);
+  font-size: var(--fs-2xs);
+  opacity: 0.85;
+}
