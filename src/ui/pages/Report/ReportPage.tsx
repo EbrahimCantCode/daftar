@@ -3,7 +3,7 @@ import { copyText, downloadText } from '../../../data/files';
 import { PREF_KEYS, readPref, writePref } from '../../../data/prefs';
 import { monthLabel } from '../../../domain/dates';
 import { buildMonthReport } from '../../../domain/report';
-import { reportMonth } from '../../../state/router';
+import { href, reportMonth } from '../../../state/router';
 import { entries, recurring, settings, today } from '../../../state/store';
 import { Button } from '../../components/Button';
 import { Checkbox } from '../../components/Checkbox';
@@ -27,7 +27,7 @@ export function ReportPage() {
 
   return (
     <div class="screen">
-      <TopBar title={`${monthLabel(month, { short: true })} ${month.slice(0, 4)} report`} back />
+      <TopBar title={`${monthLabel(month, { short: true })} ${month.slice(0, 4)} report`} back={href('reports')} />
       <p class="page-intro">Paste it into Claude to ask about this pay cycle. Made on this device; nothing is sent.</p>
 
       <div class="report-actions">

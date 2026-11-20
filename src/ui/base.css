@@ -72,7 +72,7 @@ ol {
   max-width: 42rem;
   min-height: 100dvh;
   margin: 0 auto;
-  padding: 0 var(--gutter) calc(var(--line) * 4 + env(safe-area-inset-bottom)) calc(var(--margin-x) + var(--space-3));
+  padding: 0 var(--gutter) calc(var(--line) * 4 + var(--tabbar-height) + env(safe-area-inset-bottom)) calc(var(--margin-x) + var(--space-3));
   background-color: var(--paper);
   background-image:
     linear-gradient(

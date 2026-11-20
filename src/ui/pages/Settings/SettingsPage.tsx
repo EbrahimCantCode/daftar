@@ -11,6 +11,7 @@ import { Checkbox } from '../../components/Checkbox';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { AmountInput, TextInput } from '../../components/TextInput';
 import { showToast } from '../../components/Toast';
+import { href } from '../../../state/router';
 import { TopBar } from '../../components/TopBar';
 
 const THEMES: { value: Theme; label: string }[] = [
@@ -325,7 +326,7 @@ function EraseSection() {
 export function SettingsPage() {
   return (
     <div class="screen">
-      <TopBar title="Settings" back />
+      <TopBar title="Settings" back={href('more')} />
 
       {/* Keyed on the stored value so an import or erase remounts the field with fresh text. */}
       <PaydaySetting key={`payday-${settings.value.paydayDay}`} />

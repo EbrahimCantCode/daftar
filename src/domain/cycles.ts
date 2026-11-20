@@ -136,6 +136,18 @@ export function daysElapsed(cycle: Cycle, today: string): number {
   return dayIndex(cycle, today) + 1;
 }
 
+/**
+ * Cycles from the one holding the earliest entry up to the current one, oldest first.
+ * Empty when there are no entries.
+ */
+export function cyclesWithData(entries: readonly Entry[], ctx: CycleContext, today: string): Cycle[] {
+  if (!entries.length) return [];
+  let first = entries[0]!.date;
+  for (const e of entries) if (e.date < first) first = e.date;
+  const last = today > first ? today : first;
+  return cyclesBetween(cycleFor(first, ctx).key, cycleFor(last, ctx).key, ctx);
+}
+
 // ---- Prompts ---------------------------------------------------------------
 
 /** Days after a cycle starts during which a missing salary is still asked for. */

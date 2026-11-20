@@ -9,6 +9,7 @@ import { EmptyState } from '../../components/EmptyState';
 import { EntryRow } from '../../components/EntryRow';
 import { IconButton } from '../../components/IconButton';
 import { showToast } from '../../components/Toast';
+import { href } from '../../../state/router';
 import { TopBar } from '../../components/TopBar';
 import { RecurringSheet, openRecurring } from './RecurringSheet';
 
@@ -29,7 +30,7 @@ export function MonthlyPage() {
 
   return (
     <div class="screen">
-      <TopBar title="Monthly" back />
+      <TopBar title="Monthly" back={href('more')} />
       <p class="page-intro">Written into the ledger automatically once every pay cycle: on payday, or on their day of the month.</p>
 
       {items.length === 0 ? (

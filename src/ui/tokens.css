@@ -89,6 +89,9 @@
   --space-5: 1.25rem;
   --space-6: 1.5rem;
 
+  /* Fixed bottom tab bar; floating things sit above it. */
+  --tabbar-height: 3.75rem;
+
   /* Radii. */
   --radius-round: 50%;
   --radius-focus: 6px;
@@ -97,6 +100,7 @@
   --radius-sheet-top: 18px 18px 0 0;
   --radius-page: 4px 12px 12px 4px;
   --radius-tab: 10px 14px 0 0 / 12px 10px 0 0;
+  --radius-tab-bottom: 0 0 14px 10px / 0 0 12px 10px;
   --radius-sticky: 2px 2px 3px 26px / 2px 2px 3px 10px;
   --radius-highlight: 3px 10px 4px 12px / 8px 4px 10px 3px;
   --radius-blob: 58% 42% 55% 45% / 45% 55% 45% 55%;

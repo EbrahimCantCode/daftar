@@ -3,7 +3,7 @@
   position: fixed;
   z-index: 20;
   right: max(1rem, calc(50vw - 21rem + 1rem));
-  bottom: calc(1.25rem + env(safe-area-inset-bottom));
+  bottom: calc(var(--tabbar-height) + 1.25rem + env(safe-area-inset-bottom));
   display: grid;
   place-items: center;
   width: 4rem;

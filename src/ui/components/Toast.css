@@ -5,7 +5,7 @@
   z-index: 30;
   left: max(1rem, calc(50vw - 21rem + 1rem));
   right: max(6rem, calc(50vw - 21rem + 6rem));
-  bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  bottom: calc(var(--tabbar-height) + 1.5rem + env(safe-area-inset-bottom));
   display: flex;
   align-items: center;
   gap: var(--space-2);

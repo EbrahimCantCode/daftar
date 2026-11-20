@@ -9,6 +9,7 @@ import {
   cycleRange,
   cycleTitle,
   cyclesBetween,
+  cyclesWithData,
   daysElapsed,
   entriesInCycle,
   expectedPayday,
@@ -145,5 +146,13 @@ describe('salaryDueCycle', () => {
   it('stops asking once the salary is logged, early or on time', () => {
     expect(salaryDueCycle('2026-11-22', ctx26([salary('2026-11-22')]))).toBeNull();
     expect(salaryDueCycle('2026-11-27', ctx26([salary('2026-11-26')]))).toBeNull();
+  });
+});
+
+describe('cyclesWithData', () => {
+  it('runs from the earliest entry to today', () => {
+    const list = cyclesWithData([spend('2026-11-03'), spend('2026-09-30')], ctx26(), '2026-12-01');
+    expect(list.map((c) => c.key)).toEqual(['2026-10', '2026-11', '2026-12']);
+    expect(cyclesWithData([], ctx26(), '2026-12-01')).toEqual([]);
   });
 });

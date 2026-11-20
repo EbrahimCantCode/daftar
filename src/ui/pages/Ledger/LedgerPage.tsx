@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'preact/hooks';
 import { addMonths } from '../../../domain/dates';
 import { cycleFor, entriesInCycle } from '../../../domain/cycles';
 import type { Entry } from '../../../domain/types';
-import { breakdown, groupByDay, leftOf, outgoing, savingsBalance, totalsOf } from '../../../domain/totals';
-import { href, reportHref } from '../../../state/router';
+import { groupByDay, leftOf, savingsBalance, totalsOf } from '../../../domain/totals';
+import { reportHref } from '../../../state/router';
 import { selectCycle, turn, viewCycle, viewingCurrent } from '../../../state/selection';
 import { currentCycle, cycleCtx, entries, goalHeatValue, settings, today } from '../../../state/store';
 import { CycleSelector } from '../../components/CycleSelector';
@@ -11,7 +11,6 @@ import { EmptyState } from '../../components/EmptyState';
 import { Fab } from '../../components/Fab';
 import { IconButton } from '../../components/IconButton';
 import { TopBar } from '../../components/TopBar';
-import { Breakdown } from './Breakdown';
 import { DayList } from './DayList';
 import { LedgerBanners } from './LedgerBanners';
 import { QuickAddSheet, onEntrySaved, openQuickAdd } from './QuickAddSheet';
@@ -67,8 +66,6 @@ export function LedgerPage() {
       <TopBar title="Daftar">
         <IconButton icon="wallet" label="Salary received" title onClick={() => openSalary()} />
         <IconButton icon="report" label="Month report" title href={reportHref(cycle.key)} />
-        <IconButton icon="repeat" label="Monthly items" title href={href('monthly')} />
-        <IconButton icon="gear" label="Settings" title href={href('settings')} />
       </TopBar>
 
       <LedgerBanners />
@@ -105,10 +102,7 @@ export function LedgerPage() {
               <p>{isCurrent ? 'Tap the pen to write down what you spend.' : 'No entries in this cycle.'}</p>
             </EmptyState>
           ) : (
-            <>
-              <DayList groups={groupByDay(cycleEntries)} onEdit={editEntry} />
-              <Breakdown rows={breakdown(outgoing(cycleEntries))} totalFils={totals.totalOutFils} />
-            </>
+            <DayList groups={groupByDay(cycleEntries)} onEdit={editEntry} />
           )}
         </div>
       </div>

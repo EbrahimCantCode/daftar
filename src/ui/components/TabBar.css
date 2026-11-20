@@ -1,0 +1,68 @@
+/* ---- Bottom tabs (notebook dividers) ------------------------------------- */
+
+.tabbar {
+  position: fixed;
+  z-index: 25;
+  left: 50%;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-1);
+  width: min(100%, 42rem);
+  height: calc(var(--tabbar-height) + env(safe-area-inset-bottom));
+  padding: 0 var(--space-2) env(safe-area-inset-bottom);
+  transform: translateX(-50%);
+  background: var(--desk);
+  border-top: 2px solid var(--ink);
+}
+.tabbar-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  height: calc(var(--tabbar-height) - var(--space-2));
+  margin-top: calc(-1 * var(--space-1));
+  border: 2px solid var(--ink);
+  border-top: 0;
+  border-radius: var(--radius-tab-bottom);
+  background: var(--paper-deep);
+  color: var(--ink-soft);
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+  text-decoration: none;
+  transform: translateY(calc(-1 * var(--space-1)));
+  transition: transform var(--dur-quick) ease;
+}
+.tabbar-tab span {
+  /* Long names ("Where it went") wrap onto a second line rather than being cut. */
+  max-width: 100%;
+  line-height: 1;
+  overflow-wrap: anywhere;
+}
+.tabbar-tab svg {
+  flex: none;
+  width: 1.35rem;
+  height: 1.35rem;
+}
+.tabbar-tab:nth-child(2) {
+  background: color-mix(in srgb, var(--paper-deep) 70%, var(--tab-tint-prev));
+}
+.tabbar-tab:nth-child(3) {
+  background: color-mix(in srgb, var(--paper-deep) 70%, var(--tab-tint-next));
+}
+.tabbar-tab[aria-current='page'] {
+  /* The open divider joins the page above it. */
+  height: calc(var(--tabbar-height) - var(--space-1));
+  margin-top: -2px;
+  background: var(--paper);
+  color: var(--ink);
+  transform: none;
+}
+.tabbar-tab:focus-visible {
+  outline-offset: -4px;
+}
