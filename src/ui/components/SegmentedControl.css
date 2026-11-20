@@ -17,6 +17,8 @@
   color: var(--ink-soft);
   font-weight: 700;
   font-size: var(--fs-note);
+  line-height: 1.2;
+  white-space: nowrap;
   cursor: pointer;
 }
 .toggle button[aria-pressed='true'] {

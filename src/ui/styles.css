@@ -15,6 +15,7 @@
 @import 'components/CycleSelector.css';
 @import 'components/TabBar.css';
 @import 'components/LinkRow.css';
+@import 'components/ChartContainer.css';
 @import 'pages/Ledger/LedgerPage.css';
 @import 'components/StickyNote.css';
 @import 'pages/Ledger/DayList.css';
@@ -27,3 +28,4 @@
 @import 'components/ReportView.css';
 @import 'components/Banner.css';
 @import 'pages/Migration/MigrationPage.css';
+@import 'pages/WhereItWent/WhereItWentPage.css';

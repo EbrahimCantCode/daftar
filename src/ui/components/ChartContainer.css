@@ -1,0 +1,49 @@
+/* ---- Charts -------------------------------------------------------------- */
+
+.chart {
+  margin: var(--line) 0 0;
+}
+.chart-box {
+  position: relative;
+  width: 100%;
+}
+.chart-box svg {
+  display: block;
+  overflow: visible;
+}
+.chart-box text {
+  font-family: var(--font-text);
+  fill: var(--ink-soft);
+}
+.chart-empty {
+  min-height: calc(var(--line) * 2);
+  padding: var(--space-3) var(--space-4);
+  border: 2px dashed var(--ink-soft);
+  border-radius: var(--wobble-alt);
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+.chart-note {
+  min-height: var(--line);
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
+  line-height: var(--line);
+}
+/* Invisible hit areas over sketchy marks: big, simple shapes that are easy to tap. */
+.chart-hit {
+  fill: transparent;
+  stroke: none;
+  cursor: pointer;
+}
+.chart-hit:focus-visible {
+  outline: none;
+  stroke: var(--focus);
+  stroke-width: 3px;
+}
+.legend-swatch {
+  flex: none;
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 2px solid currentColor;
+  border-radius: var(--radius-highlight);
+}

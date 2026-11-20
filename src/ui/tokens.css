@@ -29,6 +29,16 @@
   --highlight-violet: rgba(90, 45, 145, 0.16);
   --highlight-brown: rgba(138, 75, 20, 0.16);
 
+  /* Chart inks: distinct but still pen-like. --chart-other is the "Other" slice. */
+  --chart-1: #1c4ea1;
+  --chart-2: #1f7a73;
+  --chart-3: #8e3b6e;
+  --chart-4: #a8660f;
+  --chart-5: #a63d2a;
+  --chart-6: #56661c;
+  --chart-7: #4b4f8c;
+  --chart-other: #8a8f98;
+
   --card: #fffdf6;
   --overlay: rgba(40, 30, 10, 0.35);
   --focus: #1c4ea1;
@@ -153,6 +163,14 @@
     --highlight-violet: rgba(207, 176, 255, 0.2);
     --highlight-brown: rgba(227, 168, 110, 0.2);
 
+    --chart-1: #93b6ff;
+    --chart-2: #6fd1c8;
+    --chart-3: #e39acb;
+    --chart-4: #f0b45a;
+    --chart-5: #ff9b85;
+    --chart-6: #b8c96a;
+    --chart-7: #aab0ff;
+    --chart-other: #7d828b;
     --card: #252932;
     --overlay: rgba(0, 0, 0, 0.55);
     --focus: #93b6ff;
@@ -189,6 +207,14 @@
   --highlight-violet: rgba(207, 176, 255, 0.2);
   --highlight-brown: rgba(227, 168, 110, 0.2);
 
+  --chart-1: #93b6ff;
+  --chart-2: #6fd1c8;
+  --chart-3: #e39acb;
+  --chart-4: #f0b45a;
+  --chart-5: #ff9b85;
+  --chart-6: #b8c96a;
+  --chart-7: #aab0ff;
+  --chart-other: #7d828b;
   --card: #252932;
   --overlay: rgba(0, 0, 0, 0.55);
   --focus: #93b6ff;

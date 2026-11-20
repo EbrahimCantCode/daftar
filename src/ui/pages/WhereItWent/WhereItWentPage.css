@@ -1,0 +1,92 @@
+/* ---- Where it went --------------------------------------------------------- */
+
+.donut {
+  position: relative;
+  margin: 0 auto;
+}
+.donut > svg {
+  position: absolute;
+  inset: 0;
+}
+.donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  line-height: 1.2;
+  text-align: center;
+}
+.donut-center .amount {
+  font-size: var(--fs-xl);
+}
+.donut-center span:last-child {
+  font-size: var(--fs-xs);
+  color: var(--ink-soft);
+}
+
+.legend {
+  margin-top: var(--line);
+}
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  height: var(--line);
+  padding: 0 var(--space-1) 0 var(--space-2);
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+.legend-row .legend-swatch {
+  color: var(--legend-ink);
+  background: color-mix(in srgb, var(--legend-ink) 45%, transparent);
+}
+.legend-row.is-selected,
+.legend-row:hover {
+  background: linear-gradient(to bottom, transparent 20%, var(--highlight-pencil) 20%, var(--highlight-pencil) 80%, transparent 80%);
+}
+.legend-row:focus-visible {
+  outline-offset: -3px;
+}
+.legend-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.legend-pct,
+.bd-count {
+  flex: none;
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
+}
+
+.ranked-head {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 var(--space-1) 0 var(--space-2);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
+.ranked-head span:first-child {
+  flex: 1;
+}
+.ranked-head span + span {
+  margin-left: var(--space-4);
+}
+
+.slice-date {
+  flex: none;
+  width: 4rem;
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
+}
