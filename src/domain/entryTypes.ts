@@ -24,6 +24,14 @@ export const ENTRY_TYPES: Record<EntryType, EntryTypeDef> = {
   fixed: { id: 'fixed', label: 'Fixed', srLabel: 'fixed', ink: '--ink-fixed', highlight: '--highlight-pencil', icon: 'repeat' },
   savings: { id: 'savings', label: 'Savings', srLabel: 'savings', ink: '--ink-savings', highlight: '--highlight-green', icon: 'download' },
   income: { id: 'income', label: 'Income', srLabel: 'income', ink: '--ink-income', highlight: '--highlight-income', icon: 'wallet' },
+  withdrawal: {
+    id: 'withdrawal',
+    label: 'From savings',
+    srLabel: 'from savings',
+    ink: '--ink-withdrawal',
+    highlight: '--highlight-withdrawal',
+    icon: 'upload',
+  },
 };
 
 export const ENTRY_TYPE_IDS = Object.keys(ENTRY_TYPES) as EntryType[];

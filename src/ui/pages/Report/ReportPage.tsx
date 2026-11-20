@@ -18,6 +18,7 @@ export function ReportPage() {
     entries: entries.value,
     recurring: recurring.value,
     paydayDay: settings.value.paydayDay,
+    startingSavingsFils: settings.value.startingSavingsFils,
     today: today.value,
     includeEntries,
   });

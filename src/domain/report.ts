@@ -3,7 +3,7 @@ import { addDays, addMonths, monthLabel, todayISO } from './dates';
 import { buildCycleContext, cycleByKey, cycleFor, daysElapsed, entriesInCycle, type Cycle } from './cycles';
 import { DASH, byDateThenCreated, cell, change, longDate, mdTable, percent, shortDate } from './markdown';
 import { formatFils } from './money';
-import { breakdown, leftOf, totalsOf, type Totals } from './totals';
+import { breakdown, leftOf, savingsBalance, totalsOf, type Totals } from './totals';
 
 // Builds the Month Report for one pay cycle: a Markdown statement meant to be pasted
 // into an AI chat. Everything is computed from integer fils and formatted with formatFils.
@@ -15,6 +15,8 @@ export interface ReportInput {
   entries: readonly Entry[];
   recurring: readonly RecurringItem[];
   paydayDay: number;
+  /** Savings before the first savings entry; when set, the report shows the balance. */
+  startingSavingsFils?: number;
   /** YYYY-MM-DD, used for "Generated" and for how many days of the cycle have passed. */
   today: string;
   includeEntries: boolean;
@@ -22,6 +24,7 @@ export interface ReportInput {
 
 export const REPORT_FOOTER = [
   "Amounts are in Bahraini Dinar. 'Fixed' = recurring monthly costs, 'Saved' = money moved to savings (not spending).",
+  "'From savings' = money taken out of savings to cover spending: it adds to what's available (Left = income + from savings − total out) and is subtracted from net saved (saved − from savings).",
   'Each month is a pay cycle: it runs from one salary to the day before the next, and is named after the month it mostly covers.',
 ].join(' ');
 
@@ -62,10 +65,13 @@ function summarySection(input: ReportInput, cycle: Cycle, thisEntries: Entry[], 
   ];
   const pick = (k: keyof Totals) => row(labelOf[k], now[k], prev[k]);
 
+  const showWithdrawn = now.withdrawnFils > 0 || (hasLast && prev.withdrawnFils > 0);
   const rows: string[][] = [];
   if (showIncome) rows.push(pick('incomeFils'));
+  if (showWithdrawn) rows.push(pick('withdrawnFils'));
   rows.push(pick('fixedFils'), pick('spentFils'), pick('savedFils'), pick('totalOutFils'));
   if (showIncome) rows.push(row('Left', leftOf(now), leftOf(prev)));
+  rows.push(pick('netSavedFils'));
 
   const spend = thisEntries.filter((e) => e.type === 'spend');
   const days = daysElapsed(cycle, input.today);
@@ -79,18 +85,34 @@ function summarySection(input: ReportInput, cycle: Cycle, thisEntries: Entry[], 
   const spendDays = new Set(spend.filter((e) => e.date <= lastCounted).map((e) => e.date));
   const noSpendDays = days > 0 ? String(days - spendDays.size) : DASH;
 
-  return [
+  const lines = [
     '## Summary',
     mdTable(['', 'This cycle', 'Last cycle', 'Change'], rows),
     '',
+    `- Net saved this cycle: ${formatFils(now.netSavedFils)} (saved ${formatFils(now.savedFils)} − from savings ${formatFils(now.withdrawnFils)})`,
+  ];
+  if (now.netSavedFils < 0) {
+    lines.push(
+      `- Savings went down this cycle: ${formatFils(now.withdrawnFils)} came out of savings and only ${formatFils(now.savedFils)} went in.`,
+    );
+  }
+  if (input.startingSavingsFils !== undefined) {
+    const upTo = input.today < cycle.end ? input.today : cycle.end;
+    const when = upTo === cycle.end ? 'the end of the cycle' : 'today';
+    lines.push(`- Savings balance at ${when}: ${formatFils(savingsBalance(input.entries, input.startingSavingsFils, upTo))}`);
+  }
+  lines.push(
     `- Number of spending entries: ${spend.length} (${average})`,
     `- Biggest single expense: ${biggest}`,
     `- Days with no spending: ${noSpendDays}`,
-  ].join('\n');
+  );
+  return lines.join('\n');
 }
 
 const labelOf: Record<keyof Totals, string> = {
   incomeFils: 'Income',
+  withdrawnFils: 'From savings',
+  netSavedFils: 'Net saved',
   fixedFils: 'Fixed',
   spentFils: 'Spent',
   savedFils: 'Saved',
@@ -123,6 +145,15 @@ function fixedSection(input: ReportInput, cycle: Cycle, thisEntries: Entry[]): s
   return ['## Fixed & savings', lines.length ? lines.join('\n') : '- None this cycle.'].join('\n');
 }
 
+function withdrawalsSection(thisEntries: Entry[]): string {
+  const withdrawals = thisEntries.filter((e) => e.type === 'withdrawal').sort(byDateThenCreated);
+  if (!withdrawals.length) return '## Savings withdrawals\nNone this cycle.';
+  const total = withdrawals.reduce((s, e) => s + e.amountFils, 0);
+  const rows = withdrawals.map((e) => [e.date, cell(e.description), formatFils(e.amountFils)]);
+  rows.push(['', 'Total', formatFils(total)]);
+  return ['## Savings withdrawals', mdTable(['Date', 'Reason', 'Amount'], rows)].join('\n');
+}
+
 function whereSection(spend: Entry[], spentFils: number): string {
   if (spentFils === 0) return '## Where the money went\nNo spending this cycle.';
   const rows = breakdown(spend, 10).map((r) => [cell(r.label), String(r.count), formatFils(r.totalFils), percent(r.totalFils, spentFils)]);
@@ -152,6 +183,7 @@ export function buildMonthReport(input: ReportInput): string {
       `Generated: ${longDate(input.today)}. Cycle: ${longDate(cycle.start)} – ${longDate(cycle.end)}. Currency: BHD.`,
     summarySection(input, cycle, thisEntries, lastEntries),
     fixedSection(input, cycle, thisEntries),
+    withdrawalsSection(thisEntries),
     whereSection(spend, spentFils),
     weeksSection(spend, cycle),
   ];

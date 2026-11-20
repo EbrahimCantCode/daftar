@@ -3,32 +3,63 @@ import { SpellingTally, descriptionKey } from './text';
 
 export interface Totals {
   incomeFils: number;
+  /** Taken out of savings to cover spending. */
+  withdrawnFils: number;
   fixedFils: number;
   spentFils: number;
   savedFils: number;
   /** Fixed + spent + saved. */
   totalOutFils: number;
+  /** Saved − withdrawn. Negative when more came out of savings than went in. */
+  netSavedFils: number;
 }
 
 export function totalsOf(entries: readonly Entry[]): Totals {
-  const t = { incomeFils: 0, fixedFils: 0, spentFils: 0, savedFils: 0 };
+  const t = { incomeFils: 0, withdrawnFils: 0, fixedFils: 0, spentFils: 0, savedFils: 0 };
   for (const e of entries) {
-    if (e.type === 'income') t.incomeFils += e.amountFils;
-    else if (e.type === 'fixed') t.fixedFils += e.amountFils;
-    else if (e.type === 'savings') t.savedFils += e.amountFils;
-    else t.spentFils += e.amountFils;
+    switch (e.type) {
+      case 'income':
+        t.incomeFils += e.amountFils;
+        break;
+      case 'withdrawal':
+        t.withdrawnFils += e.amountFils;
+        break;
+      case 'fixed':
+        t.fixedFils += e.amountFils;
+        break;
+      case 'savings':
+        t.savedFils += e.amountFils;
+        break;
+      case 'spend':
+        t.spentFils += e.amountFils;
+        break;
+    }
   }
-  return { ...t, totalOutFils: t.fixedFils + t.spentFils + t.savedFils };
+  return { ...t, totalOutFils: t.fixedFils + t.spentFils + t.savedFils, netSavedFils: t.savedFils - t.withdrawnFils };
 }
 
-/** Income minus total out; undefined when no income was logged, since there's nothing to subtract from. */
+/**
+ * Money left: income + withdrawn from savings − total out. Undefined when no income
+ * was logged, since there's nothing to subtract from.
+ */
 export function leftOf(totals: Totals): number | undefined {
-  return totals.incomeFils > 0 ? totals.incomeFils - totals.totalOutFils : undefined;
+  return totals.incomeFils > 0 ? totals.incomeFils + totals.withdrawnFils - totals.totalOutFils : undefined;
 }
 
-/** Entries that are money going out (everything except income). */
+/** Entries that are money going out: fixed, spent and saved (not income or withdrawals). */
 export function outgoing(entries: readonly Entry[]): Entry[] {
-  return entries.filter((e) => e.type !== 'income');
+  return entries.filter((e) => e.type !== 'income' && e.type !== 'withdrawal');
+}
+
+/** Savings balance at the end of `date`: the starting balance + savings − withdrawals up to then. */
+export function savingsBalance(entries: readonly Entry[], startingFils: number, date: string): number {
+  let balance = startingFils;
+  for (const e of entries) {
+    if (e.date > date) continue;
+    if (e.type === 'savings') balance += e.amountFils;
+    else if (e.type === 'withdrawal') balance -= e.amountFils;
+  }
+  return balance;
 }
 
 export interface DayGroup {

@@ -16,7 +16,7 @@ interface SegmentedControlProps<T extends string> {
 /** A row of mutually exclusive choices (type, theme, import mode…). */
 export function SegmentedControl<T extends string>({ options, value, onChange, label, labelledBy }: SegmentedControlProps<T>) {
   return (
-    <div class="toggle" role="group" aria-label={label} aria-labelledby={labelledBy}>
+    <div class={`toggle${options.length > 2 ? ' many' : ''}`} role="group" aria-label={label} aria-labelledby={labelledBy}>
       {options.map((o) => (
         <button
           key={o.value}

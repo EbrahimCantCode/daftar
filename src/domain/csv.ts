@@ -43,6 +43,7 @@ export const CSV_COLUMNS = [
   'next_cycle',
   'payday_day',
   'usual_salary',
+  'starting_savings',
   'theme',
   'daily_goal',
   'daily_goal_since',
@@ -73,6 +74,7 @@ export function toCsv(data: DataSnapshot | LegacySnapshot): string {
     kind: 'setting',
     payday_day: s.paydayDay === undefined ? '' : String(s.paydayDay),
     usual_salary: plain(s.usualSalaryFils),
+    starting_savings: plain(s.startingSavingsFils),
     income: plain(s.monthlyIncomeFils),
     theme: s.theme,
     daily_goal: plain(s.dailyGoalFils),
@@ -319,6 +321,8 @@ export function parseImport(text: string, now: number = Date.now()): ImportPrevi
         const v2: Settings = { theme: theme as Theme, paydayDay, schemaVersion: SCHEMA_VERSION };
         const salary = amount('usual_salary', 'usual salary');
         if (salary !== undefined) v2.usualSalaryFils = salary;
+        const startingSavings = amount('starting_savings', 'starting savings');
+        if (startingSavings !== undefined) v2.startingSavingsFils = startingSavings;
         s = v2;
       } else {
         legacy = true;

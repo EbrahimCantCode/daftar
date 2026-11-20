@@ -2,10 +2,10 @@ import { useEffect, useRef } from 'preact/hooks';
 import { addMonths } from '../../../domain/dates';
 import { cycleFor, entriesInCycle } from '../../../domain/cycles';
 import type { Entry } from '../../../domain/types';
-import { breakdown, groupByDay, leftOf, outgoing, totalsOf } from '../../../domain/totals';
+import { breakdown, groupByDay, leftOf, outgoing, savingsBalance, totalsOf } from '../../../domain/totals';
 import { href, reportHref } from '../../../state/router';
 import { selectCycle, turn, viewCycle, viewingCurrent } from '../../../state/selection';
-import { currentCycle, cycleCtx, entries, goalHeatValue } from '../../../state/store';
+import { currentCycle, cycleCtx, entries, goalHeatValue, settings, today } from '../../../state/store';
 import { CycleSelector } from '../../components/CycleSelector';
 import { EmptyState } from '../../components/EmptyState';
 import { Fab } from '../../components/Fab';
@@ -41,6 +41,9 @@ export function LedgerPage() {
   const isCurrent = viewingCurrent.value;
   const cycleEntries = entriesInCycle(entries.value, cycle);
   const totals = totalsOf(cycleEntries);
+  const starting = settings.value.startingSavingsFils;
+  const balanceDate = today.value < cycle.end ? today.value : cycle.end;
+  const balance = starting === undefined ? undefined : savingsBalance(entries.value, starting, balanceDate);
   const touch = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
@@ -90,7 +93,12 @@ export function LedgerPage() {
           }}
         >
           {isCurrent && <TodayGoal />}
-          <SummaryNote totals={totals} left={leftOf(totals)} onLogSalary={isCurrent ? () => openSalary() : undefined} />
+          <SummaryNote
+            totals={totals}
+            left={leftOf(totals)}
+            savingsBalance={balance}
+            onLogSalary={isCurrent ? () => openSalary() : undefined}
+          />
 
           {cycleEntries.length === 0 ? (
             <EmptyState title="Nothing written here yet.">

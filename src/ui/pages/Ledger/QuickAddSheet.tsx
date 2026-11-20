@@ -64,7 +64,7 @@ async function save(e: Event) {
   if (amountFils === null) {
     errs.amount = amountText.value.trim() ? amountError('3.250', { mentionDecimals: true }) : 'How much was it?';
   }
-  if (!description) errs.desc = 'What was it for?';
+  if (!description) errs.desc = type.value === 'withdrawal' ? 'Give a reason for taking it out' : 'What was it for?';
   if (!isValidDate(date)) errs.date = 'Pick a date';
   errors.value = errs;
   if (errs.amount) return amountInput?.focus();
@@ -104,7 +104,7 @@ export function QuickAddSheet() {
   const todayDate = today.value;
   const yesterday = addDays(todayDate, -1);
   const chips = suggest(suggestions.value, descText.value, 8);
-  const typeOptions: EntryType[] = entry?.type === 'fixed' ? ['spend', 'fixed', 'savings'] : ['spend', 'savings'];
+  const typeOptions: EntryType[] = entry?.type === 'fixed' ? ['spend', 'fixed', 'savings', 'withdrawal'] : ['spend', 'savings', 'withdrawal'];
   const err = errors.value;
 
   return (
@@ -148,7 +148,7 @@ export function QuickAddSheet() {
             autoComplete="off"
             autoCapitalize="sentences"
             enterKeyHint="done"
-            placeholder="What was it for?"
+            placeholder={type.value === 'withdrawal' ? 'Why did you take it out?' : 'What was it for?'}
             maxLength={120}
             value={descText.value}
             invalid={!!err.desc}

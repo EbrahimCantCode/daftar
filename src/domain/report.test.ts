@@ -72,7 +72,9 @@ describe('buildMonthReport', () => {
       | Saved | 200.000 BD | 200.000 BD | 0.000 BD |
       | Total out | 254.655 BD | 245.000 BD | +9.655 BD (+4%) |
       | Left | 595.345 BD | 605.000 BD | −9.655 BD (−2%) |
+      | Net saved | 200.000 BD | 200.000 BD | 0.000 BD |
 
+      - Net saved this cycle: 200.000 BD (saved 200.000 BD − from savings 0.000 BD)
       - Number of spending entries: 5 (average 0.795 BD per day)
       - Biggest single expense: Groceries, 18.500 BD, 2026-11-11
       - Days with no spending: 27
@@ -80,6 +82,9 @@ describe('buildMonthReport', () => {
       ## Fixed & savings
       - Savings (savings, 2026-10-26): 200.000 BD
       - Gym (fixed, 2026-11-05): 30.000 BD (usually 25.000 BD)
+
+      ## Savings withdrawals
+      None this cycle.
 
       ## Where the money went
       | Description | Times | Total | % of Spent |
@@ -109,7 +114,7 @@ describe('buildMonthReport', () => {
       | 2026-11-25 | Tip | spend | 0.005 BD |
 
       ## Notes for analysis
-      Amounts are in Bahraini Dinar. 'Fixed' = recurring monthly costs, 'Saved' = money moved to savings (not spending). Each month is a pay cycle: it runs from one salary to the day before the next, and is named after the month it mostly covers.
+      Amounts are in Bahraini Dinar. 'Fixed' = recurring monthly costs, 'Saved' = money moved to savings (not spending). 'From savings' = money taken out of savings to cover spending: it adds to what's available (Left = income + from savings − total out) and is subtracted from net saved (saved − from savings). Each month is a pay cycle: it runs from one salary to the day before the next, and is named after the month it mostly covers.
       "
     `);
   });
@@ -241,5 +246,35 @@ describe('weekBuckets', () => {
   it('puts spending in the right week', () => {
     const buckets = weekBuckets([e('2026-11-01', 1_000, 'a'), e('2026-11-02', 2_000, 'b'), e('2026-11-25', 3_000, 'c')], cycleByKey('2026-11', ctx));
     expect(buckets.map((b) => b.totalFils)).toEqual([1_000, 2_000, 0, 0, 3_000]);
+  });
+});
+
+describe('savings withdrawals in the report', () => {
+  const withWithdrawal = [...base.entries, e('2026-11-14', 300_000, 'Car repair | garage', 'withdrawal')];
+
+  it('lists withdrawals with reasons and a total', () => {
+    const report = buildMonthReport({ ...base, entries: withWithdrawal });
+    expect(report).toContain('## Savings withdrawals\n| Date | Reason | Amount |\n|---|---|---|\n| 2026-11-14 | Car repair \\| garage | 300.000 BD |\n|  | Total | 300.000 BD |');
+  });
+
+  it('adds a From savings row, includes it in Left and takes it off net saved', () => {
+    const report = buildMonthReport({ ...base, entries: withWithdrawal });
+    expect(report).toContain('| From savings | 300.000 BD | 0.000 BD | +300.000 BD |');
+    expect(report).toContain('| Left | 895.345 BD | 605.000 BD | +290.345 BD (+48%) |');
+    expect(report).toContain('| Net saved | −100.000 BD | 200.000 BD | −300.000 BD (−150%) |');
+  });
+
+  it('says clearly when savings went down', () => {
+    const report = buildMonthReport({ ...base, entries: withWithdrawal });
+    expect(report).toContain('- Net saved this cycle: −100.000 BD (saved 200.000 BD − from savings 300.000 BD)');
+    expect(report).toContain('- Savings went down this cycle: 300.000 BD came out of savings and only 200.000 BD went in.');
+    expect(buildMonthReport(base)).not.toContain('Savings went down');
+  });
+
+  it('shows the savings balance when a starting balance is known', () => {
+    const report = buildMonthReport({ ...base, entries: withWithdrawal, startingSavingsFils: 1_000_000 });
+    // 1,000 + 200 (Oct) + 200 (Nov) − 300 = 1,100.
+    expect(report).toContain('- Savings balance at the end of the cycle: 1,100.000 BD');
+    expect(buildMonthReport(base)).not.toContain('Savings balance');
   });
 });

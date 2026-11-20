@@ -24,3 +24,9 @@
   background: var(--seg-ink, var(--ink));
   color: var(--paper);
 }
+/* Three or more choices: tighter so they stay on one line on a phone. */
+.toggle.many button {
+  padding: 0 var(--space-2);
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+}

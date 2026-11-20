@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Entry } from './types';
-import { breakdown, groupByDay, leftOf, outgoing, totalsOf } from './totals';
+import { breakdown, groupByDay, leftOf, outgoing, savingsBalance, totalsOf } from './totals';
 
 let seq = 0;
 const e = (date: string, amountFils: number, description: string, type: Entry['type'] = 'spend'): Entry => ({
@@ -28,10 +28,12 @@ describe('totalsOf', () => {
   it('sums each type in integer fils', () => {
     expect(totalsOf(nov)).toEqual({
       incomeFils: 0,
+      withdrawnFils: 0,
       fixedFils: 31_500,
       spentFils: 6_150,
       savedFils: 250_000,
       totalOutFils: 287_650,
+      netSavedFils: 250_000,
     });
   });
 
@@ -43,7 +45,7 @@ describe('totalsOf', () => {
   });
 
   it('is zero for an empty period', () => {
-    expect(totalsOf([])).toEqual({ incomeFils: 0, fixedFils: 0, spentFils: 0, savedFils: 0, totalOutFils: 0 });
+    expect(totalsOf([])).toEqual({ incomeFils: 0, withdrawnFils: 0, fixedFils: 0, spentFils: 0, savedFils: 0, totalOutFils: 0, netSavedFils: 0 });
   });
 
   it('computes what is left, negative when overspent, and nothing without income', () => {
@@ -57,8 +59,35 @@ describe('totalsOf', () => {
     expect(totalsOf(many).spentFils).toBe(100_000);
   });
 
-  it('separates outgoing entries from income', () => {
-    expect(outgoing([...nov, e('2026-11-01', 1, 'Salary', 'income')])).toHaveLength(6);
+  it('separates outgoing entries from income and withdrawals', () => {
+    expect(outgoing([...nov, e('2026-11-01', 1, 'Salary', 'income'), e('2026-11-02', 1, 'Car', 'withdrawal')])).toHaveLength(6);
+  });
+
+  it('adds withdrawals to what is left and takes them off net saved', () => {
+    const t = totalsOf([...nov, e('2026-11-01', 300_000, 'Salary', 'income'), e('2026-11-10', 100_000, 'Car repair', 'withdrawal')]);
+    expect(t.withdrawnFils).toBe(100_000);
+    expect(t.totalOutFils).toBe(287_650); // a withdrawal is not spending
+    expect(leftOf(t)).toBe(300_000 + 100_000 - 287_650);
+    expect(t.netSavedFils).toBe(150_000);
+    const heavy = totalsOf([e('2026-11-01', 20_000, 'Savings', 'savings'), e('2026-11-09', 50_000, 'Flight', 'withdrawal')]);
+    expect(heavy.netSavedFils).toBe(-30_000);
+  });
+});
+
+describe('savingsBalance', () => {
+  const entries = [
+    e('2026-09-26', 200_000, 'Savings', 'savings'),
+    e('2026-10-26', 200_000, 'Savings', 'savings'),
+    e('2026-11-10', 150_000, 'Car repair', 'withdrawal'),
+    e('2026-11-11', 5_000, 'Lunch'),
+  ];
+  it('adds savings and subtracts withdrawals up to a date', () => {
+    expect(savingsBalance(entries, 1_000_000, '2026-09-25')).toBe(1_000_000);
+    expect(savingsBalance(entries, 1_000_000, '2026-10-26')).toBe(1_400_000);
+    expect(savingsBalance(entries, 1_000_000, '2026-11-30')).toBe(1_250_000);
+  });
+  it('can go below zero when nothing was there to start with', () => {
+    expect(savingsBalance([e('2026-11-10', 50_000, 'x', 'withdrawal')], 0, '2026-11-30')).toBe(-50_000);
   });
 });
 

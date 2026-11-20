@@ -340,6 +340,16 @@ export function SettingsPage() {
         savedMessage={(fils) => (fils === undefined ? 'Usual salary cleared' : `Usual salary set to ${formatFils(fils)}`)}
       />
       <AmountSetting
+        key={`savings-${settings.value.startingSavingsFils}`}
+        id="starting-savings"
+        label="Starting savings balance"
+        hint="What you had in savings before your first savings entry. Daftar adds what you save and subtracts what you take out. Leave empty to hide the balance."
+        example="2500 or 2500.750"
+        value={settings.value.startingSavingsFils}
+        onSave={(fils) => updateSettings({ startingSavingsFils: fils })}
+        savedMessage={(fils) => (fils === undefined ? 'Savings balance hidden' : `Starting balance set to ${formatFils(fils)}`)}
+      />
+      <AmountSetting
         key={`goal-${settings.value.dailyGoalFils}`}
         id="daily-goal"
         label="Daily spending goal"

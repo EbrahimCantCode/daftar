@@ -27,14 +27,18 @@ function SumRow({ class: cls, label, children }: { class: string; label: string;
 interface SummaryNoteProps {
   totals: Totals;
   left: number | undefined;
+  /** Savings balance at the end of the cycle (or today), when it can be worked out. */
+  savingsBalance?: number;
   /** Offer "Log salary" when this cycle has no income yet. */
   onLogSalary?: () => void;
 }
 
-export function SummaryNote({ totals, left, onLogSalary }: SummaryNoteProps) {
+export function SummaryNote({ totals, left, savingsBalance, onLogSalary }: SummaryNoteProps) {
   const noIncome = totals.incomeFils === 0;
+  const withdrew = totals.withdrawnFils > 0;
+  const rows = 5 + (withdrew ? 1 : 0) + (savingsBalance !== undefined ? 1 : 0);
   return (
-    <StickyNote label="Cycle summary" lines={noteLines(5)}>
+    <StickyNote label="Cycle summary" lines={noteLines(rows)}>
       <dl class="sum-rows">
         <TypeRow type="income" label="Income">
           {noIncome && onLogSalary ? (
@@ -47,6 +51,11 @@ export function SummaryNote({ totals, left, onLogSalary }: SummaryNoteProps) {
             <Amount fils={totals.incomeFils} />
           )}
         </TypeRow>
+        {withdrew && (
+          <TypeRow type="withdrawal" label="From savings">
+            <Amount fils={totals.withdrawnFils} />
+          </TypeRow>
+        )}
         <TypeRow type="fixed" label="Fixed">
           <Amount fils={totals.fixedFils} />
         </TypeRow>
@@ -62,6 +71,11 @@ export function SummaryNote({ totals, left, onLogSalary }: SummaryNoteProps) {
         <SumRow class={`left${left !== undefined && left < 0 ? ' negative ink-red' : ''}`} label="Left">
           {left !== undefined ? <Amount fils={left} /> : '–'}
         </SumRow>
+        {savingsBalance !== undefined && (
+          <SumRow class={`balance${savingsBalance < 0 ? ' ink-red' : ''}`} label="In savings">
+            <Amount fils={savingsBalance} />
+          </SumRow>
+        )}
       </dl>
     </StickyNote>
   );

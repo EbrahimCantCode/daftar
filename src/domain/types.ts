@@ -1,4 +1,5 @@
-export type EntryType = 'spend' | 'fixed' | 'savings' | 'income';
+/** 'withdrawal' is money taken out of savings to cover spending. */
+export type EntryType = 'spend' | 'fixed' | 'savings' | 'income' | 'withdrawal';
 export type RecurringType = 'fixed' | 'savings';
 /** When a recurring item is written into a cycle: on the cycle's first day, or on a day of the month. */
 export type RecurringTiming = 'payday' | 'day';
@@ -40,6 +41,8 @@ export interface Settings {
   paydayDay: number;
   /** Prefills "Salary received". */
   usualSalaryFils?: number;
+  /** Savings balance before the first savings entry; the balance is this + savings − withdrawals. */
+  startingSavingsFils?: number;
   /** Daily spending goal; only "spend" entries count toward it. */
   dailyGoalFils?: number;
   /** YYYY-MM-DD the goal was first set; streak days before this don't count. */

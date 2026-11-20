@@ -101,3 +101,8 @@
   /* --row-ink comes from the entry-type registry. */
   color: color-mix(in srgb, var(--row-ink) 85%, var(--sticky-ink));
 }
+.sum-row.balance dt,
+.sum-row.balance .amount {
+  font-size: var(--fs-sm);
+  font-weight: 400;
+}

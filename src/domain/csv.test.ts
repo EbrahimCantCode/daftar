@@ -4,7 +4,7 @@ import type { LegacySnapshot } from './migrate';
 import { parseCsvRows, parseImport, toCsv } from './csv';
 
 const snapshot: DataSnapshot = {
-  settings: { paydayDay: 26, usualSalaryFils: 850_000, dailyGoalFils: 5_000, dailyGoalSince: '2026-11-01', theme: 'dark', schemaVersion: 2 },
+  settings: { paydayDay: 26, usualSalaryFils: 850_000, startingSavingsFils: 2_500_750, dailyGoalFils: 5_000, dailyGoalSince: '2026-11-01', theme: 'dark', schemaVersion: 2 },
   recurring: [
     { id: 'r1', name: 'Gym', amountFils: 25_000, timing: 'day', dayOfMonth: 31, type: 'fixed', active: true, nextCycle: '2026-12', createdAt: Date.UTC(2026, 0, 1) },
     { id: 'r2', name: 'Savings', amountFils: 200_000, timing: 'payday', dayOfMonth: 1, type: 'savings', active: false, nextCycle: '2026-08', createdAt: Date.UTC(2026, 0, 2) },
@@ -22,6 +22,7 @@ const snapshot: DataSnapshot = {
     },
     { id: 's1', date: '2026-10-26', amountFils: 850_000, description: 'Salary', type: 'income', salary: true, createdAt: Date.UTC(2026, 9, 26) },
     { id: 'b1', date: '2026-11-02', amountFils: 50_000, description: 'Bonus', type: 'income', createdAt: Date.UTC(2026, 10, 2) },
+    { id: 'w1', date: '2026-11-03', amountFils: 120_000, description: 'Car repair', type: 'withdrawal', createdAt: Date.UTC(2026, 10, 3) },
     { id: 'e1', date: '2026-11-03', amountFils: 1_200, description: 'Karak, "large"', type: 'spend', createdAt: Date.UTC(2026, 10, 3, 8) },
     { id: 'e2', date: '2026-11-04', amountFils: 5, description: 'Tip', type: 'spend', createdAt: Date.UTC(2026, 10, 4) },
   ],

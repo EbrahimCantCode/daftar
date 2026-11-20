@@ -17,6 +17,7 @@
   --ink-pencil: #5d6168;
   --ink-red: #b3261e;
   --ink-violet: #5a2d91;
+  --ink-brown: #8a4b14;
 
   --sticky: #fff1a1;
   --sticky-ink: #2b2a1e;
@@ -26,6 +27,7 @@
   --highlight-green: rgba(27, 107, 55, 0.18);
   --highlight-pencil: rgba(93, 97, 104, 0.18);
   --highlight-violet: rgba(90, 45, 145, 0.16);
+  --highlight-brown: rgba(138, 75, 20, 0.16);
 
   --card: #fffdf6;
   --overlay: rgba(40, 30, 10, 0.35);
@@ -49,6 +51,8 @@
   --ink-savings: var(--ink-green);
   --ink-income: var(--ink-violet);
   --highlight-income: var(--highlight-violet);
+  --ink-withdrawal: var(--ink-brown);
+  --highlight-withdrawal: var(--highlight-brown);
 
   /* Accent colours that don't change with the theme. */
   --tab-tint-prev: #9fc2e8;
@@ -133,6 +137,7 @@
     --ink-pencil: #b0b5bd;
     --ink-red: #ff8f85;
     --ink-violet: #cfb0ff;
+    --ink-brown: #e3a86e;
 
     --sticky: #4a4322;
     --sticky-ink: #f5eecb;
@@ -142,6 +147,7 @@
     --highlight-green: rgba(125, 213, 152, 0.2);
     --highlight-pencil: rgba(176, 181, 189, 0.2);
     --highlight-violet: rgba(207, 176, 255, 0.2);
+    --highlight-brown: rgba(227, 168, 110, 0.2);
 
     --card: #252932;
     --overlay: rgba(0, 0, 0, 0.55);
@@ -167,6 +173,7 @@
   --ink-pencil: #b0b5bd;
   --ink-red: #ff8f85;
   --ink-violet: #cfb0ff;
+  --ink-brown: #e3a86e;
 
   --sticky: #4a4322;
   --sticky-ink: #f5eecb;
@@ -176,6 +183,7 @@
   --highlight-green: rgba(125, 213, 152, 0.2);
   --highlight-pencil: rgba(176, 181, 189, 0.2);
   --highlight-violet: rgba(207, 176, 255, 0.2);
+  --highlight-brown: rgba(227, 168, 110, 0.2);
 
   --card: #252932;
   --overlay: rgba(0, 0, 0, 0.55);
