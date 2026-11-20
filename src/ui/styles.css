@@ -24,6 +24,6 @@
 @import 'pages/Monthly/MonthlyPage.css';
 @import 'pages/Settings/SettingsPage.css';
 @import 'components/Checkbox.css';
-@import 'pages/Report/ReportPage.css';
+@import 'components/ReportView.css';
 @import 'components/Banner.css';
 @import 'pages/Migration/MigrationPage.css';

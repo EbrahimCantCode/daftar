@@ -10,6 +10,7 @@ import { MonthlyPage } from './ui/pages/Monthly/MonthlyPage';
 import { MorePage } from './ui/pages/More/MorePage';
 import { ReportPage } from './ui/pages/Report/ReportPage';
 import { ReportsPage } from './ui/pages/Reports/ReportsPage';
+import { YearReportPage } from './ui/pages/Report/YearReportPage';
 import { SettingsPage } from './ui/pages/Settings/SettingsPage';
 import { WhereItWentPage } from './ui/pages/WhereItWent/WhereItWentPage';
 
@@ -22,7 +23,7 @@ const PAGES: Record<Route, () => JSX.Element> = {
   settings: SettingsPage,
   reports: ReportsPage,
   report: ReportPage,
-  year: ReportsPage,
+  year: YearReportPage,
 };
 
 export function App() {
