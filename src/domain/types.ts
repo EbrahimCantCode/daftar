@@ -48,7 +48,7 @@ export interface Settings {
   /** YYYY-MM-DD the goal was first set; streak days before this don't count. */
   dailyGoalSince?: string;
   theme: Theme;
-  /** 2 once the data uses pay cycles. Missing on data written by the first version. */
+  /** 2+ once the data uses pay cycles (see SCHEMA_VERSION). Missing on data written by the first version. */
   schemaVersion?: number;
   /** Set by the migration: offer once to log the current cycle's salary. */
   salaryOfferPending?: boolean;
@@ -63,7 +63,8 @@ export interface DataSnapshot {
 /** How an import is applied: add to what's there, or wipe first. */
 export type ImportMode = 'merge' | 'replace';
 
-export const SCHEMA_VERSION = 2;
+/** 2: pay cycles. 3: monthly entries from the calendar version realigned to cycles. */
+export const SCHEMA_VERSION = 3;
 export const DEFAULT_PAYDAY = 26;
 export const DEFAULT_SETTINGS: Settings = { theme: 'system', paydayDay: DEFAULT_PAYDAY, schemaVersion: SCHEMA_VERSION };
 

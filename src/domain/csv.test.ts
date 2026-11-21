@@ -4,7 +4,7 @@ import type { LegacySnapshot } from './migrate';
 import { parseCsvRows, parseImport, toCsv } from './csv';
 
 const snapshot: DataSnapshot = {
-  settings: { paydayDay: 26, usualSalaryFils: 850_000, startingSavingsFils: 2_500_750, dailyGoalFils: 5_000, dailyGoalSince: '2026-11-01', theme: 'dark', schemaVersion: 2 },
+  settings: { paydayDay: 26, usualSalaryFils: 850_000, startingSavingsFils: 2_500_750, dailyGoalFils: 5_000, dailyGoalSince: '2026-11-01', theme: 'dark', schemaVersion: 3 },
   recurring: [
     { id: 'r1', name: 'Gym', amountFils: 25_000, timing: 'day', dayOfMonth: 31, type: 'fixed', active: true, nextCycle: '2026-12', createdAt: Date.UTC(2026, 0, 1) },
     { id: 'r2', name: 'Savings', amountFils: 200_000, timing: 'payday', dayOfMonth: 1, type: 'savings', active: false, nextCycle: '2026-08', createdAt: Date.UTC(2026, 0, 2) },
@@ -50,8 +50,8 @@ describe('CSV export/import', () => {
   });
 
   it('round-trips with no usual salary set', () => {
-    const preview = parseImport(toCsv({ ...snapshot, settings: { theme: 'system', paydayDay: 25, schemaVersion: 2 } }));
-    expect(preview.data.settings).toEqual({ theme: 'system', paydayDay: 25, schemaVersion: 2 });
+    const preview = parseImport(toCsv({ ...snapshot, settings: { theme: 'system', paydayDay: 25, schemaVersion: 3 } }));
+    expect(preview.data.settings).toEqual({ theme: 'system', paydayDay: 25, schemaVersion: 3 });
   });
 
   it('keeps the salary flag only on income', () => {

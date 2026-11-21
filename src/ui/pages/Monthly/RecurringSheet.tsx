@@ -180,7 +180,7 @@ export function RecurringSheet() {
           />
         </FormRow>
 
-        {item && <Hint>Changes apply to entries written from now on. Entries already in the ledger stay as they are.</Hint>}
+        {item && <Hint>Changes apply from this cycle on. Past cycles, and entries you edited yourself, stay as they are.</Hint>}
 
         <FormActions
           left={

@@ -3,7 +3,6 @@ import { buildCycleContext, cycleFor } from './cycles';
 import { generatedKey } from './recurring';
 import {
   DEFAULT_PAYDAY,
-  SCHEMA_VERSION,
   type DataSnapshot,
   type Entry,
   type LegacyRecurringItem,
@@ -18,8 +17,9 @@ export interface LegacySnapshot {
   settings: LegacySettings | Settings;
 }
 
+/** True once the data uses pay cycles (schema 2 or later). */
 export function isMigrated(settings: LegacySettings | Settings | undefined): settings is Settings {
-  return (settings as Settings | undefined)?.schemaVersion === SCHEMA_VERSION;
+  return ((settings as Settings | undefined)?.schemaVersion ?? 0) >= 2;
 }
 
 /**
@@ -42,7 +42,8 @@ export function migrateToV2(data: LegacySnapshot, generatedKeys: readonly string
   const settings: Settings = {
     theme: old.theme ?? 'system',
     paydayDay: DEFAULT_PAYDAY,
-    schemaVersion: SCHEMA_VERSION,
+    // Schema 2; the repair to 3 (repairPostings) runs straight after.
+    schemaVersion: 2,
   };
   if (old.monthlyIncomeFils !== undefined) settings.usualSalaryFils = old.monthlyIncomeFils;
   if (old.dailyGoalFils !== undefined) settings.dailyGoalFils = old.dailyGoalFils;

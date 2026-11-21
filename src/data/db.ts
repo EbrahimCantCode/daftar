@@ -2,8 +2,10 @@ import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
 import { buildCycleContext, cycleFor } from '../domain/cycles';
 import { isMigrated, migrateToV2, type LegacySnapshot } from '../domain/migrate';
 import { generatedKey, planRecurring } from '../domain/recurring';
+import { repairPostings } from '../domain/repair';
 import {
   DEFAULT_SETTINGS,
+  SCHEMA_VERSION,
   type DataSnapshot,
   type Entry,
   type ImportMode,
@@ -79,6 +81,38 @@ export async function migrate(db: DaftarDB): Promise<void> {
   await tx.objectStore('settings').put(result.data.settings, SETTINGS_KEY);
   const now = Date.now();
   for (const key of result.generatedKeys) await tx.objectStore('generated').put({ key, at: now });
+  await tx.done;
+}
+
+/** Runs the schema 2 → 3 repair (see repairPostings) once, in one transaction. Returns true if it ran. */
+export async function repairIfNeeded(db: DaftarDB, today: string): Promise<boolean> {
+  const tx = db.transaction([...ALL_STORES], 'readwrite');
+  const [entries, recurring, settings, keys] = await Promise.all([
+    tx.objectStore('entries').getAll(),
+    tx.objectStore('recurring').getAll(),
+    tx.objectStore('settings').get(SETTINGS_KEY),
+    tx.objectStore('generated').getAllKeys(),
+  ]);
+  if (!isMigrated(settings) || (settings.schemaVersion ?? 0) >= SCHEMA_VERSION) {
+    await tx.done;
+    return false;
+  }
+  const result = repairPostings({ entries, recurring: recurring as RecurringItem[], settings }, keys, today);
+  for (const id of result.removedIds) await tx.objectStore('entries').delete(id);
+  for (const e of result.changed) await tx.objectStore('entries').put(e);
+  await tx.objectStore('generated').clear();
+  const now = Date.now();
+  for (const key of result.generatedKeys) await tx.objectStore('generated').put({ key, at: now });
+  for (const r of result.recurring) await tx.objectStore('recurring').put(r);
+  await tx.objectStore('settings').put({ ...settings, schemaVersion: SCHEMA_VERSION }, SETTINGS_KEY);
+  await tx.done;
+  return true;
+}
+
+/** Saves several entries in one transaction. */
+export async function putEntries(db: DaftarDB, list: Entry[]): Promise<void> {
+  const tx = db.transaction('entries', 'readwrite');
+  for (const e of list) await tx.store.put(e);
   await tx.done;
 }
 

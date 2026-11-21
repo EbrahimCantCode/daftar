@@ -11,6 +11,7 @@ import {
   openDaftarDB,
   putEntry,
   putRecurring,
+  repairIfNeeded,
   runRecurring,
   saveSettings,
   type DaftarDB,
@@ -91,7 +92,7 @@ describe('runRecurring', () => {
 describe('migration', () => {
   it('sets up an empty database for cycles without asking', async () => {
     expect(await needsMigration(db)).toBe(false);
-    expect((await loadAll(db)).settings).toMatchObject({ paydayDay: 26, schemaVersion: 2 });
+    expect((await loadAll(db)).settings).toMatchObject({ paydayDay: 26, schemaVersion: 3 });
   });
 
   it('moves version-1 data to cycles in one go, and only once', async () => {
@@ -151,5 +152,52 @@ describe('importData', () => {
     const data = await loadAll(db);
     expect(data.entries.map((e) => `${e.id}:${e.description}`).sort()).toEqual(['a:New', 'b:Keep']);
     expect(data.settings).toEqual({ theme: 'system', paydayDay: 25, schemaVersion: 2 });
+  });
+});
+
+describe('repair after migrating (schema 2 → 3)', () => {
+  it('fixes the reported cycle: Gym added, YouTube moved, once', async () => {
+    // Exactly the shape the phone had after the first migration.
+    await db.put('settings', { theme: 'system', paydayDay: 26, schemaVersion: 2, usualSalaryFils: 150_000 }, 'settings');
+    const item = (id: string, name: string, dayOfMonth: number, amountFils: number, nextCycle: string): RecurringItem => ({
+      id,
+      name,
+      amountFils,
+      timing: 'day',
+      dayOfMonth,
+      type: 'fixed',
+      active: true,
+      nextCycle,
+      createdAt: Date.UTC(2026, 10, 12),
+    });
+    await putRecurring(db, item('claude', 'Claude', 5, 7_550, '2026-12'));
+    await putRecurring(db, item('gym', 'Gym', 27, 20_000, '2027-01'));
+    await putRecurring(db, item('yt', 'Youtube music', 29, 3_390, '2027-01'));
+    const posted = (id: string, name: string, date: string, amountFils: number): Entry => ({
+      id: `rec:${id}:${date.slice(0, 7)}`,
+      date,
+      amountFils,
+      description: name,
+      type: 'fixed',
+      recurringId: id,
+      createdAt: 0,
+    });
+    await putEntry(db, posted('claude', 'Claude', '2026-11-05', 7_550));
+    await putEntry(db, posted('gym', 'Gym', '2026-11-27', 20_000));
+    await putEntry(db, posted('yt', 'Youtube music', '2026-11-01', 3_390));
+    await putEntry(db, { id: 's', date: '2026-10-26', amountFils: 150_000, description: 'Salary', type: 'income', salary: true, createdAt: 0 });
+    for (const key of ['claude:2026-11', 'gym:2026-11', 'gym:2026-12', 'yt:2026-11', 'yt:2026-12']) await db.put('generated', { key, at: 0 });
+
+    expect(await needsMigration(db)).toBe(false);
+    expect(await repairIfNeeded(db, '2026-11-21')).toBe(true);
+    expect(await repairIfNeeded(db, '2026-11-21')).toBe(false);
+    await runRecurring(db, '2026-11-21');
+    await runRecurring(db, '2026-11-21');
+
+    const { entries, settings } = await loadAll(db);
+    expect(settings.schemaVersion).toBe(3);
+    const nov = entries.filter((e) => e.date >= '2026-10-26' && e.date <= '2026-11-25' && e.recurringId);
+    expect(nov.map((e) => `${e.description} ${e.date}`).sort()).toEqual(['Claude 2026-11-05', 'Gym 2026-10-27', 'Youtube music 2026-10-29']);
+    expect(entries.filter((e) => e.recurringId === 'gym').map((e) => e.date).sort()).toEqual(['2026-10-27', '2026-11-27']);
   });
 });

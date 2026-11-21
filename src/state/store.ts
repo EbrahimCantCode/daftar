@@ -7,6 +7,7 @@ import { todayISO } from '../domain/dates';
 import { buildCycleContext, cycleFor } from '../domain/cycles';
 import { goalHeat, goalStreak, spendOnDay } from '../domain/goal';
 import { resumeItem } from '../domain/recurring';
+import { realignPostings } from '../domain/repair';
 import { buildSuggestions } from '../domain/suggest';
 import { cleanDescription } from '../domain/text';
 import { DEFAULT_SETTINGS, type DataSnapshot, type Entry, type ImportMode, type RecurringItem, type Settings } from '../domain/types';
@@ -87,6 +88,7 @@ export async function init(): Promise<void> {
     if (await db.needsMigration(database)) {
       migrationNeeded.value = true;
     } else {
+      await db.repairIfNeeded(database, today.value);
       await db.runRecurring(database, today.value);
       await reload();
     }
@@ -132,6 +134,7 @@ export async function downloadPreMigrationBackup(): Promise<void> {
 
 export async function runMigration(): Promise<void> {
   await db.migrate(getDb());
+  await db.repairIfNeeded(getDb(), today.value);
   migrationNeeded.value = false;
   await db.runRecurring(getDb(), today.value);
   await reload();
@@ -206,11 +209,22 @@ export async function addRecurring(draft: RecurringDraft): Promise<void> {
   await syncRecurring();
 }
 
-/** Changes future cycles only; entries already posted keep their values. */
+/**
+ * Applies from the current cycle on: this cycle's entry follows the new day, amount
+ * and name unless it was edited by hand. Past cycles keep what was written.
+ */
 export async function updateRecurring(item: RecurringItem): Promise<void> {
+  const before = recurring.value.find((r) => r.id === item.id);
   const clean = { ...item, name: cleanDescription(item.name) };
   await db.putRecurring(getDb(), clean);
   recurring.value = recurring.value.map((r) => (r.id === clean.id ? clean : r));
+  if (!before) return;
+  const moved = realignPostings(before, clean, entries.value, cycleCtx.value, today.value);
+  if (moved.length) {
+    await db.putEntries(getDb(), moved);
+    const byId = new Map(moved.map((e) => [e.id, e]));
+    entries.value = entries.value.map((e) => byId.get(e.id) ?? e);
+  }
 }
 
 export async function setRecurringActive(item: RecurringItem, active: boolean): Promise<void> {
